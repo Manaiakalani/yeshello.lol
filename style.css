@@ -1,0 +1,281 @@
+body {
+    font-family: 'Manrope', sans-serif;
+    /* Default font */
+    margin: 0;
+    padding: 0;
+    background-color: #f8f8f8;
+    color: #333;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+  }
+  
+  .container {
+    max-width: 800px;
+    margin: 40px auto;
+    padding: 40px 50px;
+    background-color: #f8f8f8;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    position: relative;
+    text-align: center;
+  }
+  
+  .main-title {
+    font-family: 'SUSE', sans-serif;
+    /* SUSE for main title */
+    color: #ff9900;
+    margin-bottom: 10px;
+    font-size: 2.5em;
+    text-shadow: 2px 2px 3px rgba(0, 0, 0, 0.1);
+    animation: colorChange 3s infinite alternate;
+    overflow: hidden; /* Ensures the content is not revealed until the animation */
+    white-space: nowrap; /* Keeps the content on a single line */
+    margin: 0 auto; /* Gives that scrolling effect as the typing happens */
+  }
+  
+  .typing-animation {
+    animation: typing 3.5s steps(40, end), blink-caret .75s step-end infinite;
+  }
+  
+  /* The typing effect */
+  @keyframes typing {
+    from { width: 0 }
+    to { width: 100% }
+  }
+  
+  /* The typewriter cursor effect */
+  @keyframes blink-caret {
+    from, to { border-color: transparent }
+    50% { border-color: #ff9900; }
+  }
+  
+  /* Keyframes for color change animation */
+  @keyframes colorChange {
+    0% {
+      color: #ff9900;
+    }
+    50% {
+      color: #e68a00;
+    }
+    100% {
+      color: #ff7518;
+    }
+  }
+  
+  .section-title {
+    font-family: 'Geist', sans-serif;
+    /* Geist for section titles */
+    margin-top: 40px;
+    color: #444;
+    font-size: 1.5em;
+    font-weight: 700;
+  }
+  
+  .intro-text {
+    font-family: 'Manrope', sans-serif;
+    /* Manrope for intro text */
+    line-height: 1.6;
+    margin-bottom: 25px;
+    font-size: 1em;
+  }
+  
+  .body-text {
+    font-family: 'Manrope', sans-serif;
+    /* Manrope for body text */
+    line-height: 1.6;
+    margin-bottom: 25px;
+    font-size: 1em;
+  }
+  
+  .flyout-title {
+    font-family: 'Geist', sans-serif;
+    /* Geist for flyout title */
+    margin-top: 0px;
+    color: #444;
+    font-size: 1.5em;
+    font-weight: 700;
+  }
+  
+  img {
+    max-width: 70%;
+    height: auto;
+    display: block;
+    margin: 30px auto;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  }
+  
+  .footer {
+    margin-top: 50px;
+    text-align: center;
+    font-size: 0.8em;
+    color: #777;
+  }
+  
+  a {
+    color: #ff9900;
+    text-decoration: none;
+    transition: color 0.2s ease-in-out, text-shadow 0.2s ease-in-out; /* Added text-shadow transition */
+  }
+  
+  a:hover {
+    color: #e68a00;
+    text-decoration: underline;
+    text-shadow: 0 0 2px rgba(0, 0, 0, 0.3); /* Added text-shadow on hover */
+  }
+  
+  b {
+    font-weight: 700;
+  }
+  
+  /* Flyout Styles */
+  #slang-flyout {
+    position: fixed;
+    /* Position fixed to viewport */
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: #fefefe;
+    border: 1px solid #ccc;
+    padding: 20px;
+    /* Reduced padding */
+    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+    z-index: 5;
+    /* Ensure it's above other elements */
+    width: 85%;
+    /* Slightly wider width */
+    max-width: 350px;
+    /* Reduced max-width */
+    animation: bounce 0.5s; /* Added bounce animation */
+  }
+  
+  /* Keyframes for bounce animation */
+  @keyframes bounce {
+    0%, 20%, 50%, 80%, 100% {
+      transform: translateY(-50%) translateX(-50%);
+    }
+    40% {
+      transform: translateY(-60%) translateX(-50%);
+    }
+    60% {
+      transform: translateY(-55%) translateX(-50%);
+    }
+  }
+  
+  #slang-flyout.hidden {
+    display: none;
+  }
+  
+  #slang-flyout ul {
+    list-style-type: none;
+    padding: 0;
+  }
+  
+  #slang-flyout li {
+    font-family: 'Manrope', sans-serif;
+    margin-bottom: 8px;
+    /* Reduced margin */
+    font-size: 0.8em;
+    /* Reduced font-size */
+  }
+  
+  #close-flyout {
+    font-family: 'Geist', sans-serif;
+    margin-top: 10px;
+    /* Reduced margin */
+    background-color: #ff9900;
+    color: #fff;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.2s ease-in-out;
+    display: block;
+    margin-left: auto;
+    margin-right: 0;
+  }
+  
+  #close-flyout:hover {
+    background-color: #e68a00;
+  }
+  
+  /* Conversation Styles */
+  .conversation {
+    margin-bottom: 40px;
+    text-align: left;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  }
+  
+  .message {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+    grid-column: 1 / -1;
+    margin-left: 0;
+  }
+  
+  .avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    margin-right: 10px;
+    animation: avatarBounce 0.3s ease-in-out; /* Added bounce animation */
+  }
+  
+  /* Keyframes for avatar bounce */
+  @keyframes avatarBounce {
+    0%, 100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-3px);
+    }
+  }
+  
+  .good-hello-message {
+    font-family: 'Geist', sans-serif;
+    /* Geist for good hello messages */
+  }
+  
+  .bad-hello-message {
+    font-family: 'Manrope', sans-serif;
+    /* Manrope for bad hello messages */
+  }
+  
+  /* Secret Emoji Styles */
+  #secret-emoji {
+    cursor: pointer;
+    font-size: 1.5em;
+    vertical-align: middle;
+    display: inline-block;
+    margin-left: 10px;
+    line-height: 1;
+    transition: transform 0.2s ease-in-out; /* Added transition for transform */
+  }
+  
+  #secret-emoji:hover {
+    transform: rotate(20deg); /* Rotate on hover */
+  }
+  
+  /* Alignment Styles */
+  .examples {
+    text-align: left;
+  }
+  
+  .good-hello,
+  .bad-hello {
+    margin-left: 0;
+  }
+  
+  /* Ensure the "Good" Hello examples are left-aligned */
+  .good-hello .message {
+    text-align: left;
+    margin-left: 0;
+  }
+  
+  .good-hello .message .avatar {
+    margin-left: 0;
+  }
