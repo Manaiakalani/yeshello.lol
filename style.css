@@ -1,4 +1,20 @@
+/**
+ * YesHello.lol Main Styles - Gen Z Edition
+ * 
+ * Contents:
+ * 1. Variables & Base Styles
+ * 2. Layout & Container
+ * 3. Typography
+ * 4. Animations
+ * 5. Gen Z Component Styles
+ * 6. Media Queries
+ * 7. Accessibility
+ * 8. Dark Mode (elite Gen Z aesthetic)
+ */
+
+/* 1. Variables & Base Styles */
 :root {
+  /* Core colors: bold, vibrant colors that Gen Z gravitates towards */
   --primary-color: #ff9900;
   --primary-hover: #e68a00;
   --text-color: #333;
@@ -7,6 +23,12 @@
   --card-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
   --border-radius: 10px;
   --transition-speed: 0.3s;
+  
+  /* Gen Z aesthetic variables */
+  --genz-accent: #9d4edd; /* Purple tint for Gen Z vibe */
+  --genz-gradient-start: #ff9900;
+  --genz-gradient-end: #ff3366;
+  --term-highlight: rgba(157, 78, 221, 0.15); /* Light purple for term highlights */
 }
 
 * {
@@ -180,7 +202,29 @@ strong, .term {
 }
 
 .term {
-  color: var(--primary-color);
+  position: relative;
+  background-color: var(--term-highlight);
+  padding: 2px 5px;
+  border-radius: 4px;
+  font-weight: 600;
+  cursor: help;
+  color: var(--genz-accent);
+  transition: background-color 0.2s ease;
+  display: inline-block;
+}
+
+.term:hover {
+  background-color: rgba(157, 78, 221, 0.25);
+}
+
+.term-highlight {
+  animation: pulse-highlight 1s;
+}
+
+@keyframes pulse-highlight {
+  0% { background-color: rgba(157, 78, 221, 0.25); }
+  50% { background-color: rgba(157, 78, 221, 0.5); }
+  100% { background-color: rgba(157, 78, 221, 0.25); }
 }
 
 #close-flyout {
@@ -252,9 +296,25 @@ strong, .term {
   margin-right: 5px;
 }
 
+/* Gen Z tags and badges */
 .tag {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  margin-top: 5px;
   color: #ff4a4a;
   font-style: italic;
+}
+
+.good-hello-tag {
+  background: linear-gradient(45deg, var(--genz-gradient-start), var(--genz-gradient-end));
+  color: white;
+}
+
+.bad-hello-tag {
+  background-color: #f8d7da;
+  color: #721c24;
 }
 
 /* Secret Emoji Styles */
@@ -313,7 +373,7 @@ a:focus, button:focus, [role="button"]:focus {
   background-color: var(--primary-hover);
 }
 
-/* Toast notification */
+/* Toast notification - Gen Z style pop-up alerts */
 .toast {
   position: fixed;
   bottom: 20px;
@@ -321,14 +381,18 @@ a:focus, button:focus, [role="button"]:focus {
   transform: translateX(-50%);
   background-color: #333;
   color: white;
-  padding: 10px 20px;
-  border-radius: 5px;
-  z-index: 1000;
+  padding: 12px 20px;
+  border-radius: 25px;
+  opacity: 1;
   transition: opacity 0.3s ease;
+  z-index: 1000;
+  font-weight: 500;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
 }
 
 .toast.hidden {
   opacity: 0;
+  pointer-events: none;
   visibility: hidden;
 }
 
@@ -365,21 +429,33 @@ a:focus, button:focus, [role="button"]:focus {
   }
 }
 
-/* Dark mode support */
+/* Dark mode support - Gen Z loves dark mode */
 @media (prefers-color-scheme: dark) {
   :root {
-    --text-color: #f0f0f0;
+    --text-color: #e0e0e0;
     --bg-color: #121212;
     --card-bg: #1e1e1e;
-    --card-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    --card-shadow: 0 5px 15px rgba(0, 0, 0, 0.4);
+  }
+  
+  .term {
+    background-color: rgba(157, 78, 221, 0.25);
+  }
+  
+  .term:hover {
+    background-color: rgba(157, 78, 221, 0.35);
   }
   
   .good-hello-message {
-    background-color: #1a3a4a;
+    background-color: rgba(157, 78, 221, 0.2);
   }
   
   .bad-hello-message {
-    background-color: #3a1a1a;
+    background-color: rgba(255, 77, 79, 0.2);
+  }
+  
+  a {
+    color: #bb86fc; /* Purple accent color for dark mode */
   }
   
   .conversation {
@@ -388,6 +464,11 @@ a:focus, button:focus, [role="button"]:focus {
   }
   
   a:focus, button:focus, [role="button"]:focus {
-    outline-color: var(--primary-color);
+    outline: 2px solid var(--genz-accent);
+  }
+  
+  .tag.bad-hello-tag {
+    background-color: rgba(255, 77, 79, 0.3);
+    color: #ffb0b0;
   }
 }
