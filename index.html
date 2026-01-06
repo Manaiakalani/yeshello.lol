@@ -1,152 +1,353 @@
 <!DOCTYPE html>
 <html lang="en">
+  <head>
+    <!-- ✨ basic vibes -->
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="index, follow" />
 
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="robots" content="index, follow">
-  <!-- Enhanced description to highlight Gen Z communication style -->
-  <meta name="description" content="The 'Yes Hello' method: Just say 'Hello' and make them wait - a Gen Z communication power move that's totally giving main character energy.">
-  <meta name="keywords" content="hello, communication, yeshello, productivity, gen z, millennial, slang, no cap, bet, rizz, slay, bussin">
-  <meta name="author" content="Maximilian Stein">
-  <meta name="twitter:card" content="summary">
-  <meta name="twitter:site" content="@yeshellolol">
-  <meta property="og:title" content="Yes, Hello! Bet! - The Gen Z Power Move">
-  <meta property="og:description" content="The 'Yes Hello' method: Just say 'Hello' and make them wait - a certified Gen Z communication strategy. No cap, it's bussin.">
-  <meta property="og:type" content="website">
-  <meta property="og:url" content="https://yeshello.lol">
-  <meta property="og:image" content="https://yeshello.lol/yeshello.png">
-  <title>Yes, Hello! Bet! - The Gen Z Power Move</title>
-  <link rel="stylesheet" type="text/css" href="style.css">
-  <link rel="icon" href="favicon.ico" type="image/x-icon">
-  <link rel="canonical" href="https://yeshello.lol">
-  <!-- Preload fonts for better performance -->
-  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;700&family=Poppins:wght@700&display=swap" as="style">
-  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;700&family=Poppins:wght@700&display=swap" rel="stylesheet">
-  <!-- Analytics -->
-  <script defer src="https://umami.manaiakalani.info/script.js" data-website-id="40b1fbc6-95de-42d2-b1c1-7244be47d68d"></script>
-</head>
+    <title>Yes, Hello! Bet! - The Gen Z Power Move</title>
+    <link rel="canonical" href="https://yeshello.lol" />
+    <link rel="icon" href="favicon.ico" type="image/x-icon" />
+    <link rel="stylesheet" href="style.css" />
 
-<body>
-  <div class="container">
-    <div id="slang-flyout" class="hidden" aria-labelledby="flyout-title" role="dialog">
-      <h2 id="flyout-title" class="flyout-title">Gen Z Slang Glossary</h2>
-      <ul>
-        <li><span class="term" data-term="filler">Okay, so like:</span> Classic filler phrase.</li>
-        <li><span class="term" data-term="periodt">Period.:</span> End of discussion.</li>
-        <li><span class="term" data-term="no-cap">No cap:</span> Honestly, truly.</li>
-        <li><span class="term" data-term="tea">That's the tea:</span> That's the truth/gossip.</li>
-        <li><span class="term" data-term="giving">It's giving power move:</span> Exudes confidence and control.</li>
-        <li><span class="term" data-term="lowkey">Low-key:</span> Subtle, understated.</li>
-        <li><span class="term" data-term="fr">Fr:</span> For real.</li>
-        <li><span class="term" data-term="mad">Make 'em big mad!:</span> Make them very angry.</li>
-        <li><span class="term" data-term="why">Why tho?:</span> Rhetorical question of disbelief.</li>
-        <li><span class="term" data-term="silence">Let the silence be loud:</span> Silence is significant.</li>
-        <li><span class="term" data-term="deadass">Deadass:</span> Seriously.</li>
-        <li><span class="term" data-term="uup">U up?:</span> Are you awake?</li>
-        <li><span class="term" data-term="bruh">Bruh?:</span> Expression of disbelief.</li>
-        <li><span class="term" data-term="yikes">Big Yikes:</span> Something is very bad/embarrassing.</li>
-        <li><span class="term" data-term="cringe">Cringe!:</span> Awkward or embarrassing.</li>
-        <li><span class="term" data-term="nobody">Nobody asked!:</span> Unsolicited information.</li>
-        <li><span class="term" data-term="bestie">Bestie!:</span> Close friend.</li>
-        <li><span class="term" data-term="squad">Squad:</span> Close group of friends.</li>
-        <li><span class="term" data-term="sus">Sus:</span> Suspicious.</li>
-        <li><span class="term" data-term="mood">It's a mood:</span> Relatable or captures a feeling.</li>
-        <li><span class="term" data-term="og">OG:</span> Original gangster (original/authentic).</li>
-        <li><span class="term" data-term="iconic">Iconic:</span> Impressive or memorable.</li>
-        <li><span class="term" data-term="bet">Bet:</span> Agreement or confirmation.</li>
-        <li><span class="term" data-term="slay">Slay:</span> To do something exceptionally well.</li>
-        <li><span class="term" data-term="rizz">Rizz:</span> Charm or ability to attract someone.</li>
-        <li><span class="term" data-term="bussin">Bussin:</span> Really good or amazing.</li>
-        <li><span class="term" data-term="main-character">Main character energy:</span> Acting like you're the protagonist.</li>
-      </ul>
-      <button id="close-flyout" aria-label="Close slang glossary">Close</button>
+    <!-- 🧠 SEO / social (no cap: metadata is rizz for search bots) -->
+    <meta
+      name="description"
+      content="The 'Yes Hello' method: Just say 'Hello' and make them wait - a Gen Z communication power move that's totally giving main character energy."
+    />
+    <meta
+      name="keywords"
+      content="hello, communication, yeshello, productivity, gen z, millennial, slang, no cap, bet, rizz, slay, bussin"
+    />
+    <meta name="author" content="Maximilian Stein" />
+
+    <!-- 🐦 Twitter / X -->
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:site" content="@yeshellolol" />
+
+    <!-- 🔗 Open Graph (it’s giving link preview) -->
+    <meta property="og:title" content="Yes, Hello! Bet! - The Gen Z Power Move" />
+    <meta
+      property="og:description"
+      content="The 'Yes Hello' method: Just say 'Hello' and make them wait - a certified Gen Z communication strategy. No cap, it's bussin."
+    />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://yeshello.lol" />
+    <meta property="og:image" content="https://yeshello.lol/yeshello.png" />
+
+    <!-- 🔤 Fonts (preload = faster; performance is a slay) -->
+    <link
+      rel="preload"
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;700&family=Poppins:wght@700&display=swap"
+      as="style"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;700&family=Poppins:wght@700&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- 📈 Analytics (respectfully, for the data girlies) -->
+    <script
+      src="https://analytics.manaiakalani.info/api/script.js"
+      data-site-id="c9387e504f06"
+      defer
+    ></script>
+  </head>
+
+  <body>
+    <!--
+      (If you found this: you’re the main character) 👀
+
+          __   __        _   _      _ _
+          \ \ / /__  ___| | | | ___| | | ___
+           \ V / _ \/ __| |_| |/ _ \ | |/ _ \
+            | |  __/\__ \  _  |  __/ | | (_) |
+            |_|\___||___/_| |_|\___|_|_|\___/
+
+        "Hello."
+        (then vanish for emotional damage) 😌
+    -->
+
+    <div class="container">
+      <!-- 🧾 Slang Glossary (aka: the translation layer, bestie) -->
+      <div
+        id="slang-flyout"
+        class="hidden"
+        role="dialog"
+        aria-labelledby="flyout-title"
+      >
+        <h2 id="flyout-title" class="flyout-title">Gen Z Slang Glossary</h2>
+
+        <ul>
+          <li>
+            <span class="term" data-term="filler">Okay, so like:</span> Classic
+            filler phrase.
+          </li>
+          <li>
+            <span class="term" data-term="periodt">Period.:</span> End of
+            discussion.
+          </li>
+          <li>
+            <span class="term" data-term="no-cap">No cap:</span> Honestly,
+            truly.
+          </li>
+          <li>
+            <span class="term" data-term="tea">That's the tea:</span> That's the
+            truth/gossip.
+          </li>
+          <li>
+            <span class="term" data-term="giving">It's giving power move:</span>
+            Exudes confidence and control.
+          </li>
+          <li>
+            <span class="term" data-term="lowkey">Low-key:</span> Subtle,
+            understated.
+          </li>
+          <li><span class="term" data-term="fr">Fr:</span> For real.</li>
+          <li>
+            <span class="term" data-term="mad">Make 'em big mad!:</span> Make
+            them very angry.
+          </li>
+          <li>
+            <span class="term" data-term="why">Why tho?:</span> Rhetorical
+            question of disbelief.
+          </li>
+          <li>
+            <span class="term" data-term="silence">Let the silence be loud:</span>
+            Silence is significant.
+          </li>
+          <li><span class="term" data-term="deadass">Deadass:</span> Seriously.</li>
+          <li><span class="term" data-term="uup">U up?:</span> Are you awake?</li>
+          <li><span class="term" data-term="bruh">Bruh?:</span> Expression of disbelief.</li>
+          <li>
+            <span class="term" data-term="yikes">Big Yikes:</span> Something is
+            very bad/embarrassing.
+          </li>
+          <li><span class="term" data-term="cringe">Cringe!:</span> Awkward or embarrassing.</li>
+          <li><span class="term" data-term="nobody">Nobody asked!:</span> Unsolicited information.</li>
+          <li><span class="term" data-term="bestie">Bestie!:</span> Close friend.</li>
+          <li><span class="term" data-term="squad">Squad:</span> Close group of friends.</li>
+          <li><span class="term" data-term="sus">Sus:</span> Suspicious.</li>
+          <li><span class="term" data-term="mood">It's a mood:</span> Relatable or captures a feeling.</li>
+          <li><span class="term" data-term="og">OG:</span> Original gangster (original/authentic).</li>
+          <li><span class="term" data-term="iconic">Iconic:</span> Impressive or memorable.</li>
+          <li><span class="term" data-term="bet">Bet:</span> Agreement or confirmation.</li>
+          <li><span class="term" data-term="slay">Slay:</span> To do something exceptionally well.</li>
+          <li><span class="term" data-term="rizz">Rizz:</span> Charm or ability to attract someone.</li>
+          <li><span class="term" data-term="bussin">Bussin:</span> Really good or amazing.</li>
+          <li>
+            <span class="term" data-term="main-character">Main character energy:</span>
+            Acting like you're the protagonist.
+          </li>
+        </ul>
+
+        <button id="close-flyout" aria-label="Close slang glossary">Close</button>
+      </div>
+
+      <header>
+        <!-- 🗣️ Title gets injected by JS (dynamic = kinda iconic) -->
+        <h1 class="main-title" aria-live="polite"></h1>
+      </header>
+
+      <main>
+        <!-- 😌 Intro (setting the vibe) -->
+        <section class="intro">
+          <h2 class="section-title">The Gen Z Communication Power Move</h2>
+
+          <p class="intro-text">
+            Okay, so like, in this digital world, there's a new rule, and it's a
+            total vibe: <strong>Just say "Hello"</strong> and wait.
+            <span class="term" data-term="periodt">Periodt.</span>
+          </p>
+
+          <p class="intro-text">
+            <span class="term" data-term="no-cap">No cap</span>, you don't need a
+            whole essay or some deep explanation. Just "Hello." That's the
+            <span class="term" data-term="tea">tea</span>.
+            <span
+              id="secret-emoji"
+              tabindex="0"
+              role="button"
+              aria-label="Click to see Gen Z slang glossary"
+              >👀</span
+            >
+          </p>
+        </section>
+
+        <!-- 🧠 The method (this is the plot) -->
+        <section class="method">
+          <h2 class="section-title">
+            The "Yes Hello" Method:
+            <span class="term" data-term="giving">It's Giving Power Move</span>
+          </h2>
+
+          <p class="body-text">
+            This is the art of starting a convo with a simple greeting and then...
+            silence. Let them be confused. Let them spiral. Let them overthink,
+            lol. It's a <span class="term" data-term="lowkey">low-key</span> power
+            play, a playful "f-you" to, like, proper etiquette.
+            <span class="term" data-term="fr">Fr</span>, make 'em
+            <span class="term" data-term="mad">big mad!</span>
+          </p>
+
+          <p class="body-text">
+            <span class="term" data-term="why">Why tho?</span> Because sometimes,
+            the best way to get a reaction is to give them nothing.
+            <span class="term" data-term="silence">Let the silence be loud.</span>
+            <span class="term" data-term="deadass">Deadass.</span>
+          </p>
+
+          <img
+            src="images/ThisIsDoge.png"
+            alt="Doge meme character saying just 'Hello' and nothing else"
+            class="featured-image"
+          />
+        </section>
+
+        <!-- 💬 Examples (good = chaos, bad = effort… yikes) -->
+        <section class="examples">
+          <h2 class="section-title">
+            Examples of a "Good" Hello (aka the Right Way)
+          </h2>
+
+          <div
+            class="conversation good-hello"
+            aria-label="Example of good hello messages"
+          >
+            <div class="message">
+              <img
+                src="images/Doge.jpg"
+                alt="Doge meme character avatar"
+                class="avatar"
+              />
+              <p class="good-hello-message"><span class="sender">You:</span> Hello</p>
+            </div>
+
+            <div class="message">
+              <img
+                src="images/Cate.jpg"
+                alt="Cat meme character avatar"
+                class="avatar"
+              />
+              <p class="good-hello-message">
+                <span class="sender">Them:</span> Hello? You there?
+                <span class="term" data-term="uup">U up?</span>
+              </p>
+            </div>
+
+            <div class="message">
+              <img
+                src="images/Cate.jpg"
+                alt="Cat meme character avatar"
+                class="avatar"
+              />
+              <p class="good-hello-message">
+                <span class="sender">Them:</span> What do you need? I'm kinda
+                busy rn.
+              </p>
+            </div>
+
+            <div class="message">
+              <img
+                src="images/Cate.jpg"
+                alt="Cat meme character avatar"
+                class="avatar"
+              />
+              <p class="good-hello-message">
+                <span class="sender">Them:</span> ???
+                <span class="term" data-term="bruh">Bruh?</span>
+              </p>
+            </div>
+          </div>
+
+          <h2 class="section-title">Examples of a "Bad" Hello (Big Yikes)</h2>
+
+          <div
+            class="conversation bad-hello"
+            aria-label="Example of bad hello messages"
+          >
+            <div class="message">
+              <img
+                src="images/Doge.jpg"
+                alt="Doge meme character avatar"
+                class="avatar"
+              />
+              <p class="bad-hello-message">
+                <span class="sender">You:</span> Hey, I have a question about
+                project X. Are you available to discuss the timeline and
+                deliverables? I'm particularly concerned about the integration
+                with system Y. I've run into a few roadblocks and would love your
+                input.
+                <span class="tag bad-hello-tag"
+                  ><span class="term" data-term="cringe">Cringe!</span></span
+                >
+              </p>
+            </div>
+
+            <div class="message">
+              <img
+                src="images/Doge.jpg"
+                alt="Doge meme character avatar"
+                class="avatar"
+              />
+              <p class="bad-hello-message">
+                <span class="sender">You:</span> Hey there, I hope you're having
+                a productive day! I wanted to quickly run something by you
+                regarding the upcoming marketing campaign. I have a draft of the
+                copy, and I'd love your feedback.
+                <span class="tag bad-hello-tag"
+                  ><span class="term" data-term="nobody">Nobody asked!</span></span
+                >
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <!-- 📣 CTA (go forth and be chaotic neutral) -->
+        <section class="call-to-action">
+          <h2 class="section-title">
+            Spread the Word, <span class="term" data-term="bestie">Bestie!</span>
+          </h2>
+
+          <p class="body-text">
+            Go forth and embrace the "Yes Hello" way. Share this site with your
+            <span class="term" data-term="squad">squad</span>, your coworkers (if
+            they're not <span class="term" data-term="sus">sus</span>), and anyone
+            who needs to learn how to communicate... or not. Make them wait. Make
+            them question everything. And most importantly, make them say "Hello"
+            first when you finally decide to reply.
+            <span class="term" data-term="mood">It's a mood.</span>
+          </p>
+
+          <div class="share-buttons">
+            <button class="share-btn twitter" aria-label="Share on X (Twitter)">
+              Tweet This
+            </button>
+            <button class="share-btn copy" aria-label="Copy link to clipboard">
+              Copy Link
+            </button>
+          </div>
+        </section>
+      </main>
+
+      <footer class="footer">
+        <p>
+          Inspired by
+          <a href="https://nohello.net" target="_blank" rel="noopener noreferrer"
+            >nohello.net</a
+          >, but with a way more <span class="term" data-term="iconic">iconic</span>
+          twist. 😉
+        </p>
+
+        <p class="copyright">© 2025 YesHello.lol - The cultural reset we needed.</p>
+      </footer>
     </div>
-    
-    <header>
-      <h1 class="main-title" aria-live="polite"></h1>
-    </header>
-    
-    <main>
-      <section class="intro">
-        <h2 class="section-title">The Gen Z Communication Power Move</h2>
-        <p class="intro-text">Okay, so like, in this digital world, there's a new rule, and it's a total vibe: <strong>Just
-            say "Hello"</strong> and wait.
-          <span class="term" data-term="periodt">Periodt.</span></p>
-        <p class="intro-text"><span class="term" data-term="no-cap">No cap</span>, you don't need a whole essay or some deep explanation. Just "Hello." That's the
-          <span class="term" data-term="tea">tea</span>. <span id="secret-emoji" tabindex="0" role="button" aria-label="Click to see Gen Z slang glossary">👀</span></p>
-      </section>
 
-      <section class="method">
-        <h2 class="section-title">The "Yes Hello" Method: <span class="term" data-term="giving">It's Giving Power Move</span></h2>
-        <p class="body-text">This is the art of starting a convo with a simple greeting and then... silence. Let them
-          be confused. Let them spiral. Let them overthink, lol. It's a <span class="term" data-term="lowkey">low-key</span> power play, a playful "f-you" to, like, proper
-          etiquette. <span class="term" data-term="fr">Fr</span>, make 'em <span class="term" data-term="mad">big mad!</span></p>
-        <p class="body-text"><span class="term" data-term="why">Why tho?</span> Because sometimes, the best way to get a reaction is to give them nothing. <span class="term" data-term="silence">Let
-          the silence be loud.</span> <span class="term" data-term="deadass">Deadass.</span></p>
-        <img src="images/ThisIsDoge.png" alt="Doge meme character saying just 'Hello' and nothing else" class="featured-image" />
-      </section>
+    <!-- 🍞 Toast UI (quietly serving feedback, lowkey) -->
+    <div id="toast" class="toast hidden" aria-live="polite"></div>
 
-      <section class="examples">
-        <h2 class="section-title">Examples of a "Good" Hello (aka the Right Way)</h2>
-        <div class="conversation good-hello" aria-label="Example of good hello messages">
-          <div class="message">
-            <img src="images/Doge.jpg" alt="Doge meme character avatar" class="avatar">
-            <p class="good-hello-message"><span class="sender">You:</span> Hello</p>
-          </div>
-          <div class="message">
-            <img src="images/Cate.jpg" alt="Cat meme character avatar" class="avatar">
-            <p class="good-hello-message"><span class="sender">Them:</span> Hello? You there? <span class="term" data-term="uup">U up?</span></p>
-          </div>
-          <div class="message">
-            <img src="images/Cate.jpg" alt="Cat meme character avatar" class="avatar">
-            <p class="good-hello-message"><span class="sender">Them:</span> What do you need? I'm kinda busy rn.</p>
-          </div>
-          <div class="message">
-            <img src="images/Cate.jpg" alt="Cat meme character avatar" class="avatar">
-            <p class="good-hello-message"><span class="sender">Them:</span> ??? <span class="term" data-term="bruh">Bruh?</span></p>
-          </div>
-        </div>
-
-        <h2 class="section-title">Examples of a "Bad" Hello (Big Yikes)</h2>
-        <div class="conversation bad-hello" aria-label="Example of bad hello messages">
-          <div class="message">
-            <img src="images/Doge.jpg" alt="Doge meme character avatar" class="avatar">
-            <p class="bad-hello-message"><span class="sender">You:</span> Hey, I have a question about project X. Are you available
-              to discuss the timeline and deliverables? I'm particularly concerned about the integration with system Y. I've run into a
-              few roadblocks and would love your input. <span class="tag bad-hello-tag"><span class="term" data-term="cringe">Cringe!</span></span></p>
-          </div>
-          <div class="message">
-            <img src="images/Doge.jpg" alt="Doge meme character avatar" class="avatar">
-            <p class="bad-hello-message"><span class="sender">You:</span> Hey there, I hope you're having a productive day! I
-              wanted to quickly run something by you regarding the upcoming marketing campaign. I have a draft of the copy, and I'd love your
-              feedback. <span class="tag bad-hello-tag"><span class="term" data-term="nobody">Nobody asked!</span></span></p>
-          </div>
-        </div>
-      </section>
-
-      <section class="call-to-action">
-        <h2 class="section-title">Spread the Word, <span class="term" data-term="bestie">Bestie!</span></h2>
-        <p class="body-text">Go forth and embrace the "Yes Hello" way. Share this site with your <span class="term" data-term="squad">squad</span>, your coworkers
-          (if they're not <span class="term" data-term="sus">sus</span>), and anyone who needs to learn how to communicate... or not. Make them wait. Make them question
-          everything. And most importantly, make them say "Hello" first when you finally decide to reply. <span class="term" data-term="mood">It's a mood.</span></p>
-          
-        <div class="share-buttons">
-          <button class="share-btn twitter" aria-label="Share on X (Twitter)">Tweet This</button>
-          <button class="share-btn copy" aria-label="Copy link to clipboard">Copy Link</button>
-        </div>
-      </section>
-    </main>
-
-    <footer class="footer">
-      <p>Inspired by <a href="https://nohello.net" target="_blank" rel="noopener noreferrer">nohello.net</a>, but with a way more <span class="term" data-term="iconic">iconic</span> twist. 😉
-      </p>
-      <p class="copyright">© 2025 YesHello.lol - The cultural reset we needed.</p>
-    </footer>
-  </div>
-
-  <div id="toast" class="toast hidden" aria-live="polite"></div>
-  <script src="script.js"></script>
-</body>
-
+    <!-- 🧩 Scripts (the secret sauce, fr) -->
+    <script src="script.js"></script>
+  </body>
 </html>
