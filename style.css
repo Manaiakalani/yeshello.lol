@@ -2,33 +2,97 @@
  * YesHello.lol Main Styles - Gen Z Edition
  * 
  * Contents:
- * 1. Variables & Base Styles
+ * 1. Variables & Base Styles (Light + Dark themes)
  * 2. Layout & Container
  * 3. Typography
  * 4. Animations
  * 5. Gen Z Component Styles
- * 6. Media Queries
- * 7. Accessibility
- * 8. Dark Mode (elite Gen Z aesthetic)
+ * 6. Theme Toggle
+ * 7. Skip Link
+ * 8. Media Queries (responsive + reduced motion)
+ * 9. Accessibility
  */
 
-/* 1. Variables & Base Styles */
+/* ========== 1. Variables & Base Styles ========== */
 :root {
-  /* Core colors: bold, vibrant colors that Gen Z gravitates towards */
   --primary-color: #ff9900;
   --primary-hover: #e68a00;
   --text-color: #333;
+  --text-muted: #666;
   --bg-color: #f8f8f8;
   --card-bg: #ffffff;
   --card-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
   --border-radius: 10px;
   --transition-speed: 0.3s;
-  
-  /* Gen Z aesthetic variables */
-  --genz-accent: #9d4edd; /* Purple tint for Gen Z vibe */
+  --genz-accent: #9d4edd;
   --genz-gradient-start: #ff9900;
   --genz-gradient-end: #ff3366;
-  --term-highlight: rgba(157, 78, 221, 0.15); /* Light purple for term highlights */
+  --term-highlight: rgba(157, 78, 221, 0.15);
+  --conversation-bg: #fafafa;
+  --conversation-border: #eee;
+  --good-msg-bg: #e6f7ff;
+  --bad-msg-bg: #fff0f0;
+  --msg-bubble-bg: #fff;
+  --footer-border: #eee;
+  --footer-text: #777;
+  --section-title-color: #444;
+  --bad-tag-bg: #f8d7da;
+  --bad-tag-color: #721c24;
+  --toast-bg: #333;
+  --toast-color: #fff;
+  --flyout-border: #ddd;
+  --link-color: var(--primary-color);
+  color-scheme: light dark;
+}
+
+/* Dark theme via data attribute (manual toggle) */
+[data-theme="dark"] {
+  --text-color: #e0e0e0;
+  --text-muted: #aaa;
+  --bg-color: #121212;
+  --card-bg: #1e1e1e;
+  --card-shadow: 0 5px 15px rgba(0, 0, 0, 0.4);
+  --term-highlight: rgba(157, 78, 221, 0.25);
+  --conversation-bg: #2a2a2a;
+  --conversation-border: #333;
+  --good-msg-bg: rgba(157, 78, 221, 0.2);
+  --bad-msg-bg: rgba(255, 77, 79, 0.2);
+  --msg-bubble-bg: #2a2a2a;
+  --footer-border: #333;
+  --footer-text: #999;
+  --section-title-color: #ccc;
+  --bad-tag-bg: rgba(255, 77, 79, 0.3);
+  --bad-tag-color: #ffb0b0;
+  --toast-bg: #e0e0e0;
+  --toast-color: #121212;
+  --flyout-border: #444;
+  --link-color: #bb86fc;
+}
+
+/* OS-preference fallback (when no manual choice stored) */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --text-color: #e0e0e0;
+    --text-muted: #aaa;
+    --bg-color: #121212;
+    --card-bg: #1e1e1e;
+    --card-shadow: 0 5px 15px rgba(0, 0, 0, 0.4);
+    --term-highlight: rgba(157, 78, 221, 0.25);
+    --conversation-bg: #2a2a2a;
+    --conversation-border: #333;
+    --good-msg-bg: rgba(157, 78, 221, 0.2);
+    --bad-msg-bg: rgba(255, 77, 79, 0.2);
+    --msg-bubble-bg: #2a2a2a;
+    --footer-border: #333;
+    --footer-text: #999;
+    --section-title-color: #ccc;
+    --bad-tag-bg: rgba(255, 77, 79, 0.3);
+    --bad-tag-color: #ffb0b0;
+    --toast-bg: #e0e0e0;
+    --toast-color: #121212;
+    --flyout-border: #444;
+    --link-color: #bb86fc;
+  }
 }
 
 * {
@@ -49,9 +113,10 @@ body {
   min-height: 100vh;
   line-height: 1.6;
   font-size: 16px;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-/* Improved container with better responsiveness */
+/* ========== 2. Layout & Container ========== */
 .container {
   width: 90%;
   max-width: 800px;
@@ -62,8 +127,10 @@ body {
   box-shadow: var(--card-shadow);
   position: relative;
   text-align: center;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
 }
 
+/* ========== 3. Typography ========== */
 .main-title {
   font-family: 'Poppins', 'Manrope', sans-serif;
   color: var(--primary-color);
@@ -81,7 +148,26 @@ body {
   border-right: 2px solid var(--primary-color);
 }
 
-/* Optimized animations */
+.section-title {
+  font-family: 'Poppins', 'Manrope', sans-serif;
+  margin-top: 40px;
+  margin-bottom: 20px;
+  color: var(--section-title-color);
+  font-size: clamp(1.25rem, 3vw, 1.5rem);
+  font-weight: 700;
+  transition: color 0.3s ease;
+}
+
+.intro-text, .body-text {
+  line-height: 1.8;
+  margin-bottom: 25px;
+  font-size: 1rem;
+  max-width: 90%;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* ========== 4. Animations ========== */
 @keyframes typing {
   from { width: 0 }
   to { width: 100% }
@@ -110,24 +196,20 @@ body {
   }
 }
 
-.section-title {
-  font-family: 'Poppins', 'Manrope', sans-serif;
-  margin-top: 40px;
-  margin-bottom: 20px;
-  color: #444;
-  font-size: clamp(1.25rem, 3vw, 1.5rem);
-  font-weight: 700;
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
-.intro-text, .body-text {
-  line-height: 1.6;
-  margin-bottom: 25px;
-  font-size: 1rem;
-  max-width: 90%;
-  margin-left: auto;
-  margin-right: auto;
+@keyframes pulse-highlight {
+  0% { background-color: rgba(157, 78, 221, 0.25); }
+  50% { background-color: rgba(157, 78, 221, 0.5); }
+  100% { background-color: rgba(157, 78, 221, 0.25); }
 }
 
+/* ========== 5. Gen Z Component Styles ========== */
+
+/* Featured Image */
 .featured-image {
   max-width: 100%;
   height: auto;
@@ -137,14 +219,15 @@ body {
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
-/* Improved footer */
+/* Footer */
 .footer {
   margin-top: 50px;
   text-align: center;
   font-size: 0.9rem;
-  color: #777;
-  border-top: 1px solid #eee;
+  color: var(--footer-text);
+  border-top: 1px solid var(--footer-border);
   padding-top: 20px;
+  transition: color 0.3s ease, border-color 0.3s ease;
 }
 
 .copyright {
@@ -152,8 +235,9 @@ body {
   font-size: 0.8rem;
 }
 
+/* Links */
 a {
-  color: var(--primary-color);
+  color: var(--link-color);
   text-decoration: none;
   transition: all var(--transition-speed) ease-in-out;
 }
@@ -167,14 +251,14 @@ strong, .term {
   font-weight: 700;
 }
 
-/* Improved flyout with better accessibility */
+/* Slang Flyout */
 #slang-flyout {
   position: fixed;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
   background-color: var(--card-bg);
-  border: 1px solid #ddd;
+  border: 1px solid var(--flyout-border);
   padding: 20px;
   box-shadow: var(--card-shadow);
   z-index: 100;
@@ -184,6 +268,7 @@ strong, .term {
   overflow-y: auto;
   animation: bounce 0.5s;
   border-radius: var(--border-radius);
+  transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
 #slang-flyout.hidden {
@@ -201,6 +286,11 @@ strong, .term {
   font-size: 0.9rem;
 }
 
+.flyout-title {
+  color: var(--section-title-color);
+}
+
+/* Gen Z Terms */
 .term {
   position: relative;
   background-color: var(--term-highlight);
@@ -221,12 +311,7 @@ strong, .term {
   animation: pulse-highlight 1s;
 }
 
-@keyframes pulse-highlight {
-  0% { background-color: rgba(157, 78, 221, 0.25); }
-  50% { background-color: rgba(157, 78, 221, 0.5); }
-  100% { background-color: rgba(157, 78, 221, 0.25); }
-}
-
+/* Close Flyout Button */
 #close-flyout {
   font-family: inherit;
   margin-top: 15px;
@@ -245,14 +330,15 @@ strong, .term {
   outline: none;
 }
 
-/* Improved conversation section */
+/* Conversation Sections */
 .conversation {
   margin-bottom: 40px;
   text-align: left;
-  border: 1px solid #eee;
+  border: 1px solid var(--conversation-border);
   border-radius: var(--border-radius);
   padding: 15px;
-  background-color: #fafafa;
+  background-color: var(--conversation-bg);
+  transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
 .message {
@@ -262,33 +348,31 @@ strong, .term {
   animation: fadeIn 0.5s ease-in-out;
 }
 
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
 .avatar {
   width: 40px;
   height: 40px;
   border-radius: 50%;
   margin-right: 10px;
   object-fit: cover;
+  flex-shrink: 0;
 }
 
 .good-hello-message, .bad-hello-message {
-  background-color: #fff;
+  background-color: var(--msg-bubble-bg);
   padding: 10px 15px;
   border-radius: 15px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  max-width: calc(100% - 50px);
+  max-width: calc(100% - 60px);
+  word-wrap: break-word;
+  transition: background-color 0.3s ease;
 }
 
 .good-hello-message {
-  background-color: #e6f7ff;
+  background-color: var(--good-msg-bg);
 }
 
 .bad-hello-message {
-  background-color: #fff0f0;
+  background-color: var(--bad-msg-bg);
 }
 
 .sender {
@@ -296,7 +380,7 @@ strong, .term {
   margin-right: 5px;
 }
 
-/* Gen Z tags and badges */
+/* Tags */
 .tag {
   display: inline-block;
   padding: 2px 8px;
@@ -313,11 +397,12 @@ strong, .term {
 }
 
 .bad-hello-tag {
-  background-color: #f8d7da;
-  color: #721c24;
+  background-color: var(--bad-tag-bg);
+  color: var(--bad-tag-color);
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-/* Secret Emoji Styles */
+/* Secret Emoji */
 #secret-emoji {
   cursor: pointer;
   font-size: 1.5em;
@@ -332,27 +417,25 @@ strong, .term {
   transform: rotate(20deg) scale(1.2);
 }
 
-/* Focus styles for accessibility */
-a:focus, button:focus, [role="button"]:focus {
-  outline: 2px solid var(--primary-color);
-  outline-offset: 2px;
-}
-
-/* Share buttons */
+/* Share Buttons */
 .share-buttons {
   display: flex;
   justify-content: center;
   gap: 15px;
   margin-top: 30px;
+  flex-wrap: wrap;
 }
 
 .share-btn {
-  padding: 10px 20px;
+  padding: 12px 24px;
   border: none;
   border-radius: 5px;
   font-weight: bold;
   cursor: pointer;
   transition: all var(--transition-speed) ease;
+  font-size: 0.95rem;
+  min-height: 44px;
+  min-width: 44px;
 }
 
 .twitter {
@@ -373,21 +456,23 @@ a:focus, button:focus, [role="button"]:focus {
   background-color: var(--primary-hover);
 }
 
-/* Toast notification - Gen Z style pop-up alerts */
+/* Toast Notification */
 .toast {
   position: fixed;
   bottom: 20px;
   left: 50%;
   transform: translateX(-50%);
-  background-color: #333;
-  color: white;
+  background-color: var(--toast-bg);
+  color: var(--toast-color);
   padding: 12px 20px;
   border-radius: 25px;
   opacity: 1;
-  transition: opacity 0.3s ease;
+  transition: opacity 0.3s ease, background-color 0.3s ease;
   z-index: 1000;
   font-weight: 500;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+  max-width: 90%;
+  text-align: center;
 }
 
 .toast.hidden {
@@ -396,79 +481,258 @@ a:focus, button:focus, [role="button"]:focus {
   visibility: hidden;
 }
 
-/* Responsive design improvements */
+/* ========== 6. Theme Toggle ========== */
+.theme-toggle {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  z-index: 200;
+  background: var(--card-bg);
+  border: 1px solid var(--conversation-border);
+  border-radius: 50%;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 1.3rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  transition: background-color 0.3s ease, border-color 0.3s ease, transform 0.2s ease;
+  padding: 0;
+  line-height: 1;
+}
+
+.theme-toggle:hover {
+  transform: scale(1.1);
+}
+
+.theme-toggle:active {
+  transform: scale(0.95);
+}
+
+.theme-toggle .icon-sun,
+.theme-toggle .icon-moon {
+  pointer-events: none;
+}
+
+/* Show/hide icons based on theme */
+.theme-toggle .icon-moon { display: inline; }
+.theme-toggle .icon-sun  { display: none; }
+
+[data-theme="dark"] .theme-toggle .icon-moon { display: none; }
+[data-theme="dark"] .theme-toggle .icon-sun  { display: inline; }
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .theme-toggle .icon-moon { display: none; }
+  :root:not([data-theme="light"]) .theme-toggle .icon-sun  { display: inline; }
+}
+
+/* ========== 7. Skip Link ========== */
+.skip-link {
+  position: absolute;
+  top: -100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--primary-color);
+  color: #fff;
+  padding: 8px 16px;
+  border-radius: 0 0 8px 8px;
+  z-index: 300;
+  font-weight: 700;
+  text-decoration: none;
+  transition: top 0.2s ease;
+}
+
+.skip-link:focus {
+  top: 0;
+  color: #fff;
+}
+
+/* ========== 8. Media Queries ========== */
+
+/* Reduced motion — top-level, applies to ALL screen sizes */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  .main-title, .typing-animation, #secret-emoji {
+    animation: none;
+    transition: none;
+  }
+
+  .message {
+    animation: none;
+  }
+}
+
+/* Tablet & small desktop */
+@media (min-width: 769px) {
+  .container {
+    padding: 50px 6%;
+  }
+
+  .intro-text, .body-text {
+    max-width: 85%;
+    font-size: 1.05rem;
+    line-height: 1.85;
+  }
+
+  .conversation {
+    padding: 20px;
+  }
+
+  .message {
+    margin-bottom: 18px;
+  }
+
+  .share-btn {
+    padding: 12px 28px;
+  }
+}
+
+/* Large desktop */
+@media (min-width: 1024px) {
+  .container {
+    max-width: 860px;
+    padding: 60px 7%;
+  }
+
+  .section-title {
+    margin-top: 50px;
+  }
+}
+
+/* Mobile */
 @media (max-width: 768px) {
   .container {
-    padding: 30px 4%;
-    margin: 20px auto;
+    width: 95%;
+    padding: 24px 4%;
+    margin: 16px auto;
+    border-radius: 8px;
   }
   
   .section-title {
     margin-top: 30px;
+    margin-bottom: 16px;
   }
   
   .intro-text, .body-text {
     max-width: 100%;
+    font-size: 0.95rem;
+  }
+
+  .conversation {
+    padding: 12px;
+  }
+
+  .good-hello-message, .bad-hello-message {
+    padding: 8px 12px;
+    font-size: 0.9rem;
+  }
+
+  .avatar {
+    width: 36px;
+    height: 36px;
   }
   
   #slang-flyout {
     width: 95%;
     max-width: 320px;
+    padding: 16px;
   }
-  
-  /* Disable some animations on mobile for performance */
-  @media (prefers-reduced-motion: reduce) {
-    .main-title, .typing-animation, #secret-emoji {
-      animation: none;
-      transition: none;
-    }
-    
-    .message {
-      animation: none;
-    }
+
+  .share-buttons {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .share-btn {
+    width: 80%;
+    max-width: 280px;
+  }
+
+  .theme-toggle {
+    top: 12px;
+    right: 12px;
+  }
+
+  .footer {
+    margin-top: 35px;
+    font-size: 0.85rem;
   }
 }
 
-/* Dark mode support - Gen Z loves dark mode */
+/* Small mobile */
+@media (max-width: 380px) {
+  .container {
+    width: 98%;
+    padding: 18px 3%;
+    margin: 10px auto;
+  }
+
+  .main-title {
+    font-size: clamp(1.5rem, 6vw, 2rem);
+  }
+
+  .section-title {
+    font-size: clamp(1.1rem, 4vw, 1.3rem);
+  }
+
+  .avatar {
+    width: 32px;
+    height: 32px;
+  }
+}
+
+/* ========== 9. Accessibility ========== */
+a:focus, button:focus, [role="button"]:focus {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 2px;
+}
+
+[data-theme="dark"] a:focus,
+[data-theme="dark"] button:focus,
+[data-theme="dark"] [role="button"]:focus {
+  outline-color: var(--genz-accent);
+}
+
 @media (prefers-color-scheme: dark) {
-  :root {
-    --text-color: #e0e0e0;
-    --bg-color: #121212;
-    --card-bg: #1e1e1e;
-    --card-shadow: 0 5px 15px rgba(0, 0, 0, 0.4);
+  :root:not([data-theme="light"]) a:focus,
+  :root:not([data-theme="light"]) button:focus,
+  :root:not([data-theme="light"]) [role="button"]:focus {
+    outline-color: var(--genz-accent);
+  }
+}
+
+/* Ensure touch targets are at least 44x44px */
+button, [role="button"], .term {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+.term {
+  min-height: unset;
+  min-width: unset;
+  padding: 2px 6px;
+}
+
+/* Print styles */
+@media print {
+  .theme-toggle, .share-buttons, #secret-emoji, .toast {
+    display: none !important;
   }
   
-  .term {
-    background-color: rgba(157, 78, 221, 0.25);
+  body {
+    background: white;
+    color: black;
   }
   
-  .term:hover {
-    background-color: rgba(157, 78, 221, 0.35);
-  }
-  
-  .good-hello-message {
-    background-color: rgba(157, 78, 221, 0.2);
-  }
-  
-  .bad-hello-message {
-    background-color: rgba(255, 77, 79, 0.2);
-  }
-  
-  a {
-    color: #bb86fc; /* Purple accent color for dark mode */
-  }
-  
-  .conversation {
-    background-color: #2a2a2a;
-    border-color: #333;
-  }
-  
-  a:focus, button:focus, [role="button"]:focus {
-    outline: 2px solid var(--genz-accent);
-  }
-  
-  .tag.bad-hello-tag {
-    background-color: rgba(255, 77, 79, 0.3);
-    color: #ffb0b0;
+  .container {
+    box-shadow: none;
+    max-width: 100%;
   }
 }
