@@ -6,6 +6,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="robots" content="index, follow" />
 
+    <meta name="theme-color" content="#f8f8f8" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <title>Yes, Hello! Bet! - The Gen Z Power Move</title>
     <link rel="canonical" href="https://yeshello.lol" />
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>👋</text></svg>" type="image/svg+xml" />
@@ -36,12 +39,7 @@
     <meta property="og:url" content="https://yeshello.lol" />
     <meta property="og:image" content="https://yeshello.lol/images/ThisIsDoge.png" />
 
-    <!-- 🔤 Fonts (preload = faster; performance is a slay) -->
-    <link
-      rel="preload"
-      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;700&family=Poppins:wght@700&display=swap"
-      as="style"
-    />
+    <!-- 🔤 Fonts -->
     <link
       href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;700&family=Poppins:wght@700&display=swap"
       rel="stylesheet"
@@ -56,6 +54,15 @@
   </head>
 
   <body>
+    <!-- Skip link for accessibility -->
+    <a href="#main-content" class="skip-link">Skip to content</a>
+
+    <!-- Theme toggle -->
+    <button id="theme-toggle" class="theme-toggle" aria-label="Toggle dark mode" type="button">
+      <span class="icon-sun" aria-hidden="true">☀️</span>
+      <span class="icon-moon" aria-hidden="true">🌙</span>
+    </button>
+
     <!--
       (If you found this: you’re the main character) 👀
 
@@ -75,6 +82,7 @@
         id="slang-flyout"
         class="hidden"
         role="dialog"
+        aria-hidden="true"
         aria-labelledby="flyout-title"
       >
         <h2 id="flyout-title" class="flyout-title">Gen Z Slang Glossary</h2>
@@ -150,7 +158,7 @@
         <h1 class="main-title" aria-live="polite"></h1>
       </header>
 
-      <main>
+      <main id="main-content">
         <!-- 😌 Intro (setting the vibe) -->
         <section class="intro">
           <h2 class="section-title">The Gen Z Communication Power Move</h2>
@@ -202,6 +210,9 @@
             src="images/ThisIsDoge.png"
             alt="Doge meme character saying just 'Hello' and nothing else"
             class="featured-image"
+            loading="lazy"
+            width="800"
+            height="600"
           />
         </section>
 
@@ -220,6 +231,9 @@
                 src="images/Doge.jpg"
                 alt="Doge meme character avatar"
                 class="avatar"
+                loading="lazy"
+                width="40"
+                height="40"
               />
               <p class="good-hello-message"><span class="sender">You:</span> Hello</p>
             </div>
@@ -229,6 +243,9 @@
                 src="images/Cate.jpg"
                 alt="Cat meme character avatar"
                 class="avatar"
+                loading="lazy"
+                width="40"
+                height="40"
               />
               <p class="good-hello-message">
                 <span class="sender">Them:</span> Hello? You there?
@@ -241,6 +258,9 @@
                 src="images/Cate.jpg"
                 alt="Cat meme character avatar"
                 class="avatar"
+                loading="lazy"
+                width="40"
+                height="40"
               />
               <p class="good-hello-message">
                 <span class="sender">Them:</span> What do you need? I'm kinda
@@ -253,6 +273,9 @@
                 src="images/Cate.jpg"
                 alt="Cat meme character avatar"
                 class="avatar"
+                loading="lazy"
+                width="40"
+                height="40"
               />
               <p class="good-hello-message">
                 <span class="sender">Them:</span> ???
@@ -272,6 +295,9 @@
                 src="images/Doge.jpg"
                 alt="Doge meme character avatar"
                 class="avatar"
+                loading="lazy"
+                width="40"
+                height="40"
               />
               <p class="bad-hello-message">
                 <span class="sender">You:</span> Hey, I have a question about
@@ -290,6 +316,9 @@
                 src="images/Doge.jpg"
                 alt="Doge meme character avatar"
                 class="avatar"
+                loading="lazy"
+                width="40"
+                height="40"
               />
               <p class="bad-hello-message">
                 <span class="sender">You:</span> Hey there, I hope you're having
@@ -340,7 +369,7 @@
           twist. 😉
         </p>
 
-        <p class="copyright">© 2025 YesHello.lol - The cultural reset we needed.</p>
+        <p class="copyright">© <span id="copyright-year">2025</span> YesHello.lol - The cultural reset we needed.</p>
       </footer>
     </div>
 
