@@ -9,6 +9,7 @@
     <meta name="theme-color" content="#f8f8f8" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preconnect" href="https://analytics.manaiakalani.info" />
     <title>Yes, Hello! Bet! - The Gen Z Power Move</title>
     <link rel="canonical" href="https://yeshello.lol" />
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>👋</text></svg>" type="image/svg+xml" />
@@ -28,6 +29,9 @@
     <!-- 🐦 Twitter / X -->
     <meta name="twitter:card" content="summary" />
     <meta name="twitter:site" content="@yeshellolol" />
+    <meta name="twitter:title" content="Yes, Hello! Bet! - The Gen Z Power Move" />
+    <meta name="twitter:description" content="Just say 'Hello' and make them wait — the Gen Z communication power move. No cap, it's bussin." />
+    <meta name="twitter:image" content="https://yeshello.lol/images/ThisIsDoge.png" />
 
     <!-- 🔗 Open Graph (it’s giving link preview) -->
     <meta property="og:title" content="Yes, Hello! Bet! - The Gen Z Power Move" />
@@ -38,6 +42,9 @@
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://yeshello.lol" />
     <meta property="og:image" content="https://yeshello.lol/images/ThisIsDoge.png" />
+    <meta property="og:image:width" content="800" />
+    <meta property="og:image:height" content="600" />
+    <meta property="og:locale" content="en_US" />
 
     <!-- 🔤 Fonts -->
     <link
@@ -75,6 +82,9 @@
         "Hello."
         (then vanish for emotional damage) 😌
     -->
+
+    <!-- Flyout backdrop overlay -->
+    <div id="flyout-backdrop" class="flyout-backdrop hidden" aria-hidden="true"></div>
 
     <div class="container">
       <!-- 🧾 Slang Glossary (aka: the translation layer, bestie) -->
@@ -156,6 +166,7 @@
       <header>
         <!-- 🗣️ Title gets injected by JS (dynamic = kinda iconic) -->
         <h1 class="main-title" aria-live="polite"></h1>
+        <noscript><style>.main-title::after { content: "Yes, Hello! Bet!"; }</style></noscript>
       </header>
 
       <main id="main-content">
