@@ -247,10 +247,16 @@
     });
 
     // ── Flyout ────────────────────────────────────────────
+    var backdrop = document.getElementById('flyout-backdrop');
+
     function openFlyout() {
       if (!els.slangFlyout) return;
       els.slangFlyout.classList.remove('hidden');
       els.slangFlyout.setAttribute('aria-hidden', 'false');
+      if (backdrop) {
+        backdrop.classList.remove('hidden');
+        backdrop.setAttribute('aria-hidden', 'false');
+      }
       els.closeFlyoutBtn && els.closeFlyoutBtn.focus();
     }
 
@@ -258,7 +264,37 @@
       if (!els.slangFlyout) return;
       els.slangFlyout.classList.add('hidden');
       els.slangFlyout.setAttribute('aria-hidden', 'true');
+      if (backdrop) {
+        backdrop.classList.add('hidden');
+        backdrop.setAttribute('aria-hidden', 'true');
+      }
       els.secretEmoji && els.secretEmoji.focus();
+    }
+
+    // Focus trap — keep Tab/Shift+Tab inside the flyout when open
+    function trapFocus(e) {
+      if (!els.slangFlyout || els.slangFlyout.classList.contains('hidden')) return;
+      if (e.key !== 'Tab') return;
+
+      var focusable = els.slangFlyout.querySelectorAll(
+        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+      );
+      if (!focusable.length) return;
+
+      var first = focusable[0];
+      var last = focusable[focusable.length - 1];
+
+      if (e.shiftKey) {
+        if (document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        }
+      } else {
+        if (document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
+      }
     }
 
     if (els.secretEmoji) {
@@ -272,19 +308,15 @@
       els.closeFlyoutBtn.addEventListener('click', closeFlyout);
     }
 
+    if (backdrop) {
+      backdrop.addEventListener('click', closeFlyout);
+    }
+
     document.addEventListener('keydown', function (e) {
       if (e.key === 'Escape' && els.slangFlyout && !els.slangFlyout.classList.contains('hidden')) {
         closeFlyout();
       }
-    });
-
-    document.addEventListener('click', function (e) {
-      if (els.slangFlyout &&
-          !els.slangFlyout.classList.contains('hidden') &&
-          !els.slangFlyout.contains(e.target) &&
-          e.target !== els.secretEmoji) {
-        closeFlyout();
-      }
+      trapFocus(e);
     });
 
     // ── Share Buttons ─────────────────────────────────────
