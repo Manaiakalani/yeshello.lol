@@ -481,7 +481,21 @@ strong, .term {
   visibility: hidden;
 }
 
-/* ========== 6. Theme Toggle ========== */
+/* ========== 6. Theme Toggle & Flyout Backdrop ========== */
+
+/* Flyout Backdrop */
+.flyout-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  z-index: 99;
+  transition: opacity 0.2s ease;
+}
+
+.flyout-backdrop.hidden {
+  display: none;
+}
+
 .theme-toggle {
   position: fixed;
   top: 16px;
@@ -709,15 +723,9 @@ a:focus, button:focus, [role="button"]:focus {
 }
 
 /* Ensure touch targets are at least 44x44px */
-button, [role="button"], .term {
+button, [role="button"] {
   min-height: 44px;
   min-width: 44px;
-}
-
-.term {
-  min-height: unset;
-  min-width: unset;
-  padding: 2px 6px;
 }
 
 /* Print styles */
