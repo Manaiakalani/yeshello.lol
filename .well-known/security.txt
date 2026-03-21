@@ -1,0 +1,7 @@
+# Security Policy for yeshello.lol
+# Per RFC 9116 — https://www.rfc-editor.org/rfc/rfc9116
+
+Contact: mailto:security@yeshello.lol
+Expires: 2027-03-21T23:59:59.000Z
+Preferred-Languages: en
+Canonical: https://yeshello.lol/.well-known/security.txt
