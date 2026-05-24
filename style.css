@@ -116,11 +116,12 @@ body {
   animation: colorChange 3s infinite alternate;
   overflow: hidden;
   white-space: nowrap;
+  width: fit-content;
   margin: 0 auto;
 }
 
 .typing-animation {
-  animation: typing 3.5s steps(40, end), blink-caret .75s step-end infinite;
+  animation: typing 3.5s steps(16, end), blink-caret .75s step-end infinite;
   border-right: 2px solid var(--primary-color);
 }
 
@@ -145,8 +146,8 @@ body {
 
 /* ========== 4. Animations ========== */
 @keyframes typing {
-  from { width: 0 }
-  to { width: 100% }
+  from { max-width: 0 }
+  to { max-width: 100% }
 }
 
 @keyframes blink-caret {
