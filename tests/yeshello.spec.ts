@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-test.describe('YesHello.lol — Page Load & Structure', () => {
+test.describe('YesHello.lol - Page Load & Structure', () => {
   test('should load the homepage with correct title', async ({ page }) => {
     await page.goto('/');
     await expect(page).toHaveTitle(/yes,?\s*hello/i);
@@ -35,7 +35,7 @@ test.describe('YesHello.lol — Page Load & Structure', () => {
   });
 });
 
-test.describe('YesHello.lol — Dark Mode', () => {
+test.describe('YesHello.lol - Dark Mode', () => {
   test('should have a theme toggle button', async ({ page }) => {
     await page.goto('/');
     const toggle = page.locator('[aria-label*="theme" i], [aria-label*="dark" i], [aria-label*="mode" i], .theme-toggle, #theme-toggle, button:has-text("🌙"), button:has-text("☀")');
@@ -64,7 +64,7 @@ test.describe('YesHello.lol — Dark Mode', () => {
   });
 });
 
-test.describe('YesHello.lol — Slang Glossary', () => {
+test.describe('YesHello.lol - Slang Glossary', () => {
   test('should reveal glossary when emoji is clicked', async ({ page }) => {
     await page.goto('/');
 
@@ -84,7 +84,7 @@ test.describe('YesHello.lol — Slang Glossary', () => {
   });
 });
 
-test.describe('YesHello.lol — Social Sharing', () => {
+test.describe('YesHello.lol - Social Sharing', () => {
   test('should display social sharing buttons', async ({ page }) => {
     await page.goto('/');
     const shareButtons = page.locator('a[href*="twitter.com"], a[href*="x.com"], [class*="share"], [aria-label*="share" i], button:has-text("share")');
@@ -92,7 +92,7 @@ test.describe('YesHello.lol — Social Sharing', () => {
   });
 });
 
-test.describe('YesHello.lol — Accessibility', () => {
+test.describe('YesHello.lol - Accessibility', () => {
   test('should have proper heading hierarchy', async ({ page }) => {
     await page.goto('/');
     const h1 = page.locator('h1');
@@ -124,7 +124,7 @@ test.describe('YesHello.lol — Accessibility', () => {
   });
 });
 
-test.describe('YesHello.lol — Responsive Design', () => {
+test.describe('YesHello.lol - Responsive Design', () => {
   test('should render correctly on mobile viewport', async ({ page, browserName }) => {
     test.skip(browserName !== 'chromium', 'Viewport test only on Chromium');
     await page.setViewportSize({ width: 375, height: 667 });
@@ -137,7 +137,7 @@ test.describe('YesHello.lol — Responsive Design', () => {
   });
 });
 
-test.describe('YesHello.lol — 404 Page', () => {
+test.describe('YesHello.lol - 404 Page', () => {
   test('should show custom 404 page for invalid routes', async ({ page }) => {
     const response = await page.goto('/this-page-does-not-exist-12345');
     // Azure Static Web Apps should serve 404.html

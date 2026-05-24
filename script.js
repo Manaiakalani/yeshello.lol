@@ -175,7 +175,7 @@
         navigator.clipboard.writeText(window.location.href).then(function () {
           showToast('Link copied! Slay! 🔗');
         }, function () {
-          showToast('Copy failed — not the vibe 😔');
+          showToast('Copy failed - not the vibe 😔');
         });
       } else {
         // Fallback
@@ -188,7 +188,7 @@
           document.execCommand('copy');
           showToast('Link copied! Slay! 🔗');
         } catch (_) {
-          showToast('Copy failed — not the vibe 😔');
+          showToast('Copy failed - not the vibe 😔');
         }
         document.body.removeChild(ta);
       }
@@ -213,12 +213,12 @@
     // ── Term Tooltips ─────────────────────────────────────
     const descriptions = {
       'filler': 'A phrase used to fill space in conversation',
-      'periodt': 'Period with a T — statement is final',
+      'periodt': 'Period with a T - statement is final',
       'no-cap': 'Not lying, telling the truth',
       'tea': 'The truth, gossip, or inside info',
       'giving': 'Resembling or evoking a certain vibe',
       'lowkey': 'Subtle, understated, or secretly',
-      'fr': 'For real — emphasize sincerity',
+      'fr': 'For real - emphasize sincerity',
       'mad': 'Very or extremely',
       'why': 'Expressing exasperation or disbelief',
       'silence': 'Strategic pause for effect',
@@ -232,7 +232,7 @@
       'squad': 'Close group of friends',
       'sus': 'Suspicious or questionable',
       'mood': 'Relatable or captures a feeling',
-      'og': 'Original gangster — authentic or the first',
+      'og': 'Original gangster - authentic or the first',
       'iconic': 'Memorable, influential, or impressive',
       'bet': 'Agreement or confirmation',
       'slay': 'To do something exceptionally well',
@@ -246,7 +246,7 @@
       term.setAttribute('tabindex', '0');
       term.setAttribute('role', 'button');
       if (key && descriptions[key]) {
-        term.setAttribute('aria-label', term.textContent + ' — ' + descriptions[key]);
+        term.setAttribute('aria-label', term.textContent + ' - ' + descriptions[key]);
         term.setAttribute('title', descriptions[key]);
       }
 
@@ -288,7 +288,7 @@
       if (els.secretEmoji) els.secretEmoji.focus();
     }
 
-    // Focus trap — keep Tab/Shift+Tab inside the flyout when open
+    // Focus trap - keep Tab/Shift+Tab inside the flyout when open
     function trapFocus(e) {
       if (!els.slangFlyout || els.slangFlyout.classList.contains('hidden')) return;
       if (e.key !== 'Tab') return;
@@ -346,7 +346,7 @@
       els.nativeShareBtn.addEventListener('click', function () {
         navigator.share({
           title: 'Yes, Hello! Bet! - The Gen Z Power Move',
-          text: "Just say 'Hello' and make them wait — the Gen Z communication power move.",
+          text: "Just say 'Hello' and make them wait - the Gen Z communication power move.",
           url: window.location.href,
         }).catch(function () {});
       });
