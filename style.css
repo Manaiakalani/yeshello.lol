@@ -807,6 +807,34 @@ button, [role="button"]:not(.term) {
     color: #333;
     text-decoration: underline;
   }
+}
+
+/* Windows High Contrast / forced-colors mode */
+@media (forced-colors: active) {
+  .theme-toggle,
+  .share-btn,
+  .home-link {
+    border: 1px solid ButtonText;
+  }
+
+  .skip-link {
+    background: Canvas;
+    color: LinkText;
+    border: 1px solid LinkText;
+  }
+
+  #slang-flyout {
+    border: 2px solid ButtonText;
+  }
+
+  .term {
+    forced-color-adjust: none;
+    text-decoration: underline;
+  }
+
+  a:focus, button:focus, [role="button"]:focus {
+    outline: 2px solid Highlight;
+  }
 
   a[href]::after {
     content: " (" attr(href) ")";
