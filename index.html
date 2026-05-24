@@ -41,6 +41,7 @@
     />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://yeshello.lol" />
+    <meta property="og:site_name" content="YesHello.lol" />
     <meta property="og:image" content="https://yeshello.lol/images/ThisIsDoge.png" />
     <meta property="og:image:width" content="800" />
     <meta property="og:image:height" content="600" />
@@ -58,6 +59,21 @@
       data-site-id="c9387e504f06"
       defer
     ></script>
+
+    <!-- 🧩 Structured Data -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "YesHello.lol",
+      "url": "https://yeshello.lol",
+      "description": "The 'Yes Hello' method: Just say 'Hello' and make them wait - a Gen Z communication power move.",
+      "author": {
+        "@type": "Person",
+        "name": "Maximilian Stein"
+      }
+    }
+    </script>
   </head>
 
   <body>
@@ -93,6 +109,7 @@
         class="hidden"
         role="dialog"
         aria-hidden="true"
+        aria-modal="true"
         aria-labelledby="flyout-title"
       >
         <h2 id="flyout-title" class="flyout-title">Gen Z Slang Glossary</h2>
@@ -217,14 +234,17 @@
             <span class="term" data-term="deadass">Deadass.</span>
           </p>
 
-          <img
-            src="images/ThisIsDoge.png"
-            alt="Doge meme character saying just 'Hello' and nothing else"
-            class="featured-image"
-            loading="lazy"
-            width="800"
-            height="600"
-          />
+          <picture>
+            <source srcset="images/ThisIsDoge.webp" type="image/webp" />
+            <img
+              src="images/ThisIsDoge.png"
+              alt="Doge meme character saying just 'Hello' and nothing else"
+              class="featured-image"
+              loading="lazy"
+              width="800"
+              height="600"
+            />
+          </picture>
         </section>
 
         <!-- 💬 Examples (good = chaos, bad = effort… yikes) -->
@@ -238,26 +258,32 @@
             aria-label="Example of good hello messages"
           >
             <div class="message">
-              <img
-                src="images/Doge.jpg"
-                alt="Doge meme character avatar"
-                class="avatar"
-                loading="lazy"
-                width="40"
-                height="40"
-              />
+              <picture>
+                <source srcset="images/Doge.webp" type="image/webp" />
+                <img
+                  src="images/Doge.jpg"
+                  alt="Doge meme character avatar"
+                  class="avatar"
+                  loading="lazy"
+                  width="40"
+                  height="40"
+                />
+              </picture>
               <p class="good-hello-message"><span class="sender">You:</span> Hello</p>
             </div>
 
             <div class="message">
-              <img
-                src="images/Cate.jpg"
-                alt="Cat meme character avatar"
-                class="avatar"
-                loading="lazy"
-                width="40"
-                height="40"
-              />
+              <picture>
+                <source srcset="images/Cate.webp" type="image/webp" />
+                <img
+                  src="images/Cate.jpg"
+                  alt="Cat meme character avatar"
+                  class="avatar"
+                  loading="lazy"
+                  width="40"
+                  height="40"
+                />
+              </picture>
               <p class="good-hello-message">
                 <span class="sender">Them:</span> Hello? You there?
                 <span class="term" data-term="uup">U up?</span>
@@ -265,14 +291,17 @@
             </div>
 
             <div class="message">
-              <img
-                src="images/Cate.jpg"
-                alt="Cat meme character avatar"
-                class="avatar"
-                loading="lazy"
-                width="40"
-                height="40"
-              />
+              <picture>
+                <source srcset="images/Cate.webp" type="image/webp" />
+                <img
+                  src="images/Cate.jpg"
+                  alt="Cat meme character avatar"
+                  class="avatar"
+                  loading="lazy"
+                  width="40"
+                  height="40"
+                />
+              </picture>
               <p class="good-hello-message">
                 <span class="sender">Them:</span> What do you need? I'm kinda
                 busy rn.
@@ -280,14 +309,17 @@
             </div>
 
             <div class="message">
-              <img
-                src="images/Cate.jpg"
-                alt="Cat meme character avatar"
-                class="avatar"
-                loading="lazy"
-                width="40"
-                height="40"
-              />
+              <picture>
+                <source srcset="images/Cate.webp" type="image/webp" />
+                <img
+                  src="images/Cate.jpg"
+                  alt="Cat meme character avatar"
+                  class="avatar"
+                  loading="lazy"
+                  width="40"
+                  height="40"
+                />
+              </picture>
               <p class="good-hello-message">
                 <span class="sender">Them:</span> ???
                 <span class="term" data-term="bruh">Bruh?</span>
@@ -302,14 +334,17 @@
             aria-label="Example of bad hello messages"
           >
             <div class="message">
-              <img
-                src="images/Doge.jpg"
-                alt="Doge meme character avatar"
-                class="avatar"
-                loading="lazy"
-                width="40"
-                height="40"
-              />
+              <picture>
+                <source srcset="images/Doge.webp" type="image/webp" />
+                <img
+                  src="images/Doge.jpg"
+                  alt="Doge meme character avatar"
+                  class="avatar"
+                  loading="lazy"
+                  width="40"
+                  height="40"
+                />
+              </picture>
               <p class="bad-hello-message">
                 <span class="sender">You:</span> Hey, I have a question about
                 project X. Are you available to discuss the timeline and
@@ -323,14 +358,17 @@
             </div>
 
             <div class="message">
-              <img
-                src="images/Doge.jpg"
-                alt="Doge meme character avatar"
-                class="avatar"
-                loading="lazy"
-                width="40"
-                height="40"
-              />
+              <picture>
+                <source srcset="images/Doge.webp" type="image/webp" />
+                <img
+                  src="images/Doge.jpg"
+                  alt="Doge meme character avatar"
+                  class="avatar"
+                  loading="lazy"
+                  width="40"
+                  height="40"
+                />
+              </picture>
               <p class="bad-hello-message">
                 <span class="sender">You:</span> Hey there, I hope you're having
                 a productive day! I wanted to quickly run something by you
@@ -361,8 +399,8 @@
           </p>
 
           <div class="share-buttons">
-            <button class="share-btn twitter" aria-label="Share on X (Twitter)">
-              Tweet This
+            <button class="share-btn twitter" aria-label="Share on X">
+              Share on X
             </button>
             <button class="share-btn copy" aria-label="Copy link to clipboard">
               Copy Link
