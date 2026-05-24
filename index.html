@@ -85,7 +85,7 @@
     <a href="#main-content" class="skip-link">Skip to content</a>
 
     <!-- Theme toggle -->
-    <button id="theme-toggle" class="theme-toggle" aria-label="Toggle dark mode" type="button">
+    <button id="theme-toggle" class="theme-toggle" aria-label="Toggle dark mode" type="button" data-testid="theme-toggle">
       <span class="icon-sun" aria-hidden="true">☀️</span>
       <span class="icon-moon" aria-hidden="true">🌙</span>
       <span class="toggle-label" aria-hidden="true">vibe</span>
@@ -116,6 +116,7 @@
         aria-hidden="true"
         aria-modal="true"
         aria-labelledby="flyout-title"
+        data-testid="glossary-flyout"
       >
         <h2 id="flyout-title" class="flyout-title">Gen Z Slang Glossary</h2>
 
@@ -149,7 +150,7 @@
           <li><span class="term" data-term="main-character">Main character energy:</span> Acting like you're the protagonist.</li>
         </ul>
 
-        <button id="close-flyout" aria-label="Close slang glossary">Close</button>
+        <button id="close-flyout" aria-label="Close slang glossary" data-testid="glossary-close">Close</button>
       </div>
 
       <header>
@@ -177,6 +178,7 @@
               tabindex="0"
               role="button"
               aria-label="Click to see Gen Z slang glossary"
+              data-testid="glossary-trigger"
               >👀</span
             >
           </p>
@@ -371,10 +373,10 @@
           </p>
 
           <div class="share-buttons">
-            <button class="share-btn x-share" aria-label="Share on X">
+            <button class="share-btn x-share" aria-label="Share on X" data-testid="share-x">
               Share on X
             </button>
-            <button class="share-btn copy" aria-label="Copy link to clipboard">
+            <button class="share-btn copy" aria-label="Copy link to clipboard" data-testid="share-copy">
               Copy Link
             </button>
             <button class="share-btn native-share" aria-label="Share this page" hidden>
