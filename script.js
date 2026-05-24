@@ -1,7 +1,7 @@
 /**
  * YesHello.lol - The Gen Z Communication Power Move
  *
- * @author Maximilian Stein
+ * @author Manaiakalani
  * @version 2.0.0
  */
 
@@ -178,19 +178,7 @@
           showToast('Copy failed - not the vibe 😔');
         });
       } else {
-        // Fallback
-        const ta = document.createElement('textarea');
-        ta.value = window.location.href;
-        ta.style.cssText = 'position:fixed;opacity:0';
-        document.body.appendChild(ta);
-        ta.select();
-        try {
-          document.execCommand('copy');
-          showToast('Link copied! Slay! 🔗');
-        } catch (_) {
-          showToast('Copy failed - not the vibe 😔');
-        }
-        document.body.removeChild(ta);
+        showToast('Copy not supported in this browser 😔');
       }
     }
 
