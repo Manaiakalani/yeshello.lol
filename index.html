@@ -15,6 +15,7 @@
     <link rel="icon" href="/favicon.ico" sizes="32x32" />
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>👋</text></svg>" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/manifest.json" />
     <link rel="stylesheet" href="style.css" />
 
     <!-- 🧠 SEO / social (no cap: metadata is rizz for search bots) -->
@@ -28,9 +29,8 @@
     />
     <meta name="author" content="Maximilian Stein" />
 
-    <!-- 🐦 Twitter / X -->
-    <meta name="twitter:card" content="summary" />
-    <meta name="twitter:site" content="@yeshellolol" />
+    <!-- 🐦 X (Twitter) -->
+    <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="Yes, Hello! Bet! - The Gen Z Power Move" />
     <meta name="twitter:description" content="Just say 'Hello' and make them wait — the Gen Z communication power move. No cap, it's bussin." />
     <meta name="twitter:image" content="https://yeshello.lol/images/ThisIsDoge.png" />
@@ -50,6 +50,11 @@
     <meta property="og:locale" content="en_US" />
 
     <!-- 🔤 Fonts -->
+    <link
+      rel="preload"
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;700&family=Poppins:wght@700&display=swap"
+      as="style"
+    />
     <link
       href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;700&family=Poppins:wght@700&display=swap"
       rel="stylesheet"
@@ -401,11 +406,14 @@
           </p>
 
           <div class="share-buttons">
-            <button class="share-btn twitter" aria-label="Share on X">
+            <button class="share-btn x-share" aria-label="Share on X">
               Share on X
             </button>
             <button class="share-btn copy" aria-label="Copy link to clipboard">
               Copy Link
+            </button>
+            <button class="share-btn native-share" aria-label="Share this page" hidden>
+              Share
             </button>
           </div>
         </section>
@@ -425,7 +433,7 @@
     </div>
 
     <!-- 🍞 Toast UI (quietly serving feedback, lowkey) -->
-    <div id="toast" class="toast hidden" aria-live="polite"></div>
+    <div id="toast" class="toast hidden" aria-live="polite" role="status"></div>
 
     <!-- 🧩 Scripts (the secret sauce, fr) -->
     <script src="script.js"></script>

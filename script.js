@@ -61,8 +61,9 @@
       mainTitle: document.querySelector('.main-title'),
       toast: document.getElementById('toast'),
       themeToggle: document.getElementById('theme-toggle'),
-      twitterBtn: document.querySelector('.share-btn.twitter'),
+      twitterBtn: document.querySelector('.share-btn.x-share'),
       copyBtn: document.querySelector('.share-btn.copy'),
+      nativeShareBtn: document.querySelector('.share-btn.native-share'),
       terms: document.querySelectorAll('.term[data-term]'),
     };
 
@@ -100,7 +101,7 @@
       }
     }
 
-    // Message typing effect
+    // Message typing effect (triggered by IntersectionObserver)
     function animateMessages(messages) {
       if (!messages || !messages.length || prefersReducedMotion) return;
 
@@ -121,7 +122,7 @@
         // Clear and prepare for animation
         p.innerHTML = senderHTML;
 
-        const delay = idx === 0 ? 600 : idx * 1400;
+        const delay = idx === 0 ? 200 : idx * 1200;
         const charSpeed = idx === 0 ? 40 : 55;
 
         setTimeout(function () {
@@ -139,7 +140,23 @@
       });
     }
 
-    animateMessages(els.goodMessages);
+    // Use IntersectionObserver to trigger animations when scrolled into view
+    const goodConversation = document.querySelector('.good-hello');
+    if (goodConversation && 'IntersectionObserver' in window && !prefersReducedMotion) {
+      let animated = false;
+      const observer = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+          if (entry.isIntersecting && !animated) {
+            animated = true;
+            animateMessages(els.goodMessages);
+            observer.disconnect();
+          }
+        });
+      }, { threshold: 0.3 });
+      observer.observe(goodConversation);
+    } else {
+      animateMessages(els.goodMessages);
+    }
 
     // ── Toast ─────────────────────────────────────────────
     function showToast(message, duration) {
@@ -147,10 +164,8 @@
       duration = duration || 3000;
       els.toast.textContent = message;
       els.toast.classList.remove('hidden');
-      els.toast.setAttribute('aria-hidden', 'false');
       setTimeout(function () {
         els.toast.classList.add('hidden');
-        els.toast.setAttribute('aria-hidden', 'true');
       }, duration);
     }
 
@@ -324,6 +339,18 @@
     // ── Share Buttons ─────────────────────────────────────
     if (els.twitterBtn) els.twitterBtn.addEventListener('click', shareOnX);
     if (els.copyBtn) els.copyBtn.addEventListener('click', copyLink);
+
+    // Native Web Share API
+    if (els.nativeShareBtn && navigator.share) {
+      els.nativeShareBtn.hidden = false;
+      els.nativeShareBtn.addEventListener('click', function () {
+        navigator.share({
+          title: 'Yes, Hello! Bet! - The Gen Z Power Move',
+          text: "Just say 'Hello' and make them wait — the Gen Z communication power move.",
+          url: window.location.href,
+        }).catch(function () {});
+      });
+    }
 
     // ── Dynamic Copyright Year ────────────────────────────
     const yearEl = document.getElementById('copyright-year');

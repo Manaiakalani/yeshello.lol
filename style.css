@@ -69,31 +69,7 @@
   --link-color: #bb86fc;
 }
 
-/* OS-preference fallback (when no manual choice stored) */
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --text-color: #e0e0e0;
-    --text-muted: #aaa;
-    --bg-color: #121212;
-    --card-bg: #1e1e1e;
-    --card-shadow: 0 5px 15px rgba(0, 0, 0, 0.4);
-    --term-highlight: rgba(157, 78, 221, 0.25);
-    --conversation-bg: #2a2a2a;
-    --conversation-border: #333;
-    --good-msg-bg: rgba(157, 78, 221, 0.2);
-    --bad-msg-bg: rgba(255, 77, 79, 0.2);
-    --msg-bubble-bg: #2a2a2a;
-    --footer-border: #333;
-    --footer-text: #999;
-    --section-title-color: #ccc;
-    --bad-tag-bg: rgba(255, 77, 79, 0.3);
-    --bad-tag-color: #ffb0b0;
-    --toast-bg: #e0e0e0;
-    --toast-color: #121212;
-    --flyout-border: #444;
-    --link-color: #bb86fc;
-  }
-}
+/* Dark theme applied via data-theme attribute (set by JS based on manual toggle or OS preference) */
 
 * {
   box-sizing: border-box;
@@ -448,13 +424,13 @@ strong, .term {
   min-width: 44px;
 }
 
-.twitter {
-  background-color: #1da1f2;
+.x-share {
+  background-color: #000;
   color: white;
 }
 
-.twitter:hover {
-  background-color: #0c85d0;
+.x-share:hover {
+  background-color: #333;
 }
 
 .copy {
@@ -464,6 +440,15 @@ strong, .term {
 
 .copy:hover {
   background-color: var(--primary-hover);
+}
+
+.native-share {
+  background-color: var(--genz-accent);
+  color: white;
+}
+
+.native-share:hover {
+  background-color: #8b3ec9;
 }
 
 /* Toast Notification */
@@ -540,17 +525,12 @@ strong, .term {
   pointer-events: none;
 }
 
-/* Show/hide icons based on theme */
+/* Theme toggle icon visibility — driven by data-theme attribute set by JS */
 .theme-toggle .icon-moon { display: inline; }
 .theme-toggle .icon-sun  { display: none; }
 
 [data-theme="dark"] .theme-toggle .icon-moon { display: none; }
 [data-theme="dark"] .theme-toggle .icon-sun  { display: inline; }
-
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) .theme-toggle .icon-moon { display: none; }
-  :root:not([data-theme="light"]) .theme-toggle .icon-sun  { display: inline; }
-}
 
 /* ========== 7. Skip Link ========== */
 .skip-link {
@@ -722,14 +702,6 @@ a:focus, button:focus, [role="button"]:focus {
 [data-theme="dark"] button:focus,
 [data-theme="dark"] [role="button"]:focus {
   outline-color: var(--genz-accent);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) a:focus,
-  :root:not([data-theme="light"]) button:focus,
-  :root:not([data-theme="light"]) [role="button"]:focus {
-    outline-color: var(--genz-accent);
-  }
 }
 
 /* Ensure touch targets are at least 44x44px */
