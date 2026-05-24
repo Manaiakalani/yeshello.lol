@@ -740,17 +740,70 @@ button, [role="button"] {
 
 /* Print styles */
 @media print {
-  .theme-toggle, .share-buttons, #secret-emoji, .toast {
+  .theme-toggle, .share-buttons, #secret-emoji, .toast, .skip-link,
+  #slang-flyout, .flyout-backdrop {
     display: none !important;
   }
   
   body {
     background: white;
     color: black;
+    font-size: 12pt;
   }
   
   .container {
     box-shadow: none;
     max-width: 100%;
+    width: 100%;
+    margin: 0;
+    padding: 20px;
+    background: white;
+  }
+
+  .main-title {
+    color: #333 !important;
+    animation: none !important;
+    border-right: none !important;
+  }
+
+  .term {
+    background-color: transparent;
+    color: inherit;
+    font-weight: 700;
+  }
+
+  .conversation {
+    border: 1px solid #ccc;
+    background: #fafafa;
+    break-inside: avoid;
+  }
+
+  .message {
+    animation: none !important;
+  }
+
+  .good-hello-message, .bad-hello-message {
+    background: #f0f0f0 !important;
+    box-shadow: none;
+  }
+
+  .featured-image {
+    max-width: 60%;
+    box-shadow: none;
+  }
+
+  a {
+    color: #333;
+    text-decoration: underline;
+  }
+
+  a[href]::after {
+    content: " (" attr(href) ")";
+    font-size: 0.8em;
+    color: #666;
+  }
+
+  .footer a[href]::after {
+    content: " (" attr(href) ")";
   }
 }
