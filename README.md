@@ -1,23 +1,25 @@
 # YesHello.lol - The Gen Z Communication Power Move
 
+🌐 **Live at [yeshello.lol](https://yeshello.lol)**
+
 A humorous website that explores and showcases the "Yes Hello" communication style popular among Gen Z. This site demonstrates how starting conversations with just "Hello" and making people wait is a playful power move in digital communication.
 
 ## Features
 
-- Interactive conversation examples
-- Comprehensive Gen Z slang glossary
-- Responsive design with dark mode support
-- Animation effects with accessibility considerations
-- Social sharing options
-- Gen Z term highlighting and tooltips
+- Interactive conversation examples with scroll-triggered typing animations
+- Comprehensive Gen Z slang glossary (hidden behind the 👀 emoji)
+- Responsive design with dark mode support (auto-detects OS preference)
+- Accessibility features: keyboard navigation, reduced motion, focus trapping, ARIA
+- Social sharing: X, native Web Share API, and copy link
+- WebP images with PNG/JPG fallbacks
+- PWA-ready with web app manifest
 
 ## Technologies
 
-- HTML5
-- CSS3 with CSS variables and modern animations
-- Vanilla JavaScript with performance optimizations
-- Responsive design for all devices
-- Accessibility features including keyboard navigation and reduced motion support
+- HTML5 with semantic markup and structured data (JSON-LD)
+- CSS3 with custom properties, dark theme, and modern animations
+- Vanilla JavaScript (no dependencies)
+- Hosted on Azure Static Web Apps with security headers (CSP, HSTS)
 
 ## Getting Started
 
@@ -32,6 +34,12 @@ To modify the site:
 - Edit `index.html` for content changes
 - Edit `style.css` for styling
 - Edit `script.js` for interactive functionality
+- Edit `staticwebapp.config.json` for headers, caching, and routing
+
+### CI/CD
+
+- **Linting**: PRs are automatically checked with HTMLHint, Stylelint, and ESLint
+- **Deployment**: Pushes to `main` auto-deploy via Azure Static Web Apps
 
 ## Contributing
 

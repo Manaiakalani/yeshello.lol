@@ -1,0 +1,21 @@
+{
+  "name": "YesHello.lol",
+  "short_name": "YesHello",
+  "description": "The Gen Z Communication Power Move — Just say 'Hello' and make them wait.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f8f8f8",
+  "theme_color": "#ff9900",
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "32x32",
+      "type": "image/x-icon"
+    },
+    {
+      "src": "/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    }
+  ]
+}
