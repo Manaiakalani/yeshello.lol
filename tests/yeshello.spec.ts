@@ -75,12 +75,24 @@ test.describe('YesHello.lol - Slang Glossary', () => {
     // Initially hidden
     await expect(flyout.first()).toHaveAttribute('aria-hidden', 'true');
 
+    // Check aria-expanded if present
+    const hasExpanded = await trigger.first().getAttribute('aria-expanded');
+    if (hasExpanded !== null) {
+      expect(hasExpanded).toBe('false');
+    }
+
     // Open glossary
     await trigger.first().click();
     await page.waitForTimeout(500);
 
     // Should be visible with correct aria state
     await expect(flyout.first()).toHaveAttribute('aria-hidden', 'false');
+
+    // aria-expanded should be true if present
+    const expandedAfter = await trigger.first().getAttribute('aria-expanded');
+    if (expandedAfter !== null) {
+      expect(expandedAfter).toBe('true');
+    }
   });
 
   test('should close glossary with close button and return focus', async ({ page }) => {

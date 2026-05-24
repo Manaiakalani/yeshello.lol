@@ -68,14 +68,30 @@
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
-      "@type": "WebSite",
-      "name": "YesHello.lol",
-      "url": "https://yeshello.lol",
-      "description": "The 'Yes Hello' method: Just say 'Hello' and make them wait - a Gen Z communication power move.",
-      "author": {
-        "@type": "Person",
-        "name": "Maximilian Stein"
-      }
+      "@graph": [
+        {
+          "@type": "WebSite",
+          "name": "YesHello.lol",
+          "url": "https://yeshello.lol",
+          "description": "The 'Yes Hello' method: Just say 'Hello' and make them wait - a Gen Z communication power move.",
+          "author": {
+            "@type": "Person",
+            "name": "Manaiakalani",
+            "url": "https://github.com/Manaiakalani"
+          }
+        },
+        {
+          "@type": "WebPage",
+          "name": "Yes, Hello! Bet! - The Gen Z Power Move",
+          "url": "https://yeshello.lol",
+          "description": "The 'Yes Hello' method: Just say 'Hello' and make them wait - a Gen Z communication power move.",
+          "isPartOf": {
+            "@type": "WebSite",
+            "name": "YesHello.lol",
+            "url": "https://yeshello.lol"
+          }
+        }
+      ]
     }
     </script>
   </head>
@@ -155,7 +171,7 @@
 
       <header>
         <!-- Title gets typed by JS; fallback text for no-JS and SEO -->
-        <h1 class="main-title" aria-live="polite">Yes, Hello! Bet!</h1>
+        <h1 class="main-title">Yes, Hello! Bet!</h1>
       </header>
 
       <main id="main-content">
@@ -178,6 +194,9 @@
               tabindex="0"
               role="button"
               aria-label="Click to see Gen Z slang glossary"
+              aria-controls="slang-flyout"
+              aria-expanded="false"
+              aria-haspopup="dialog"
               data-testid="glossary-trigger"
               >👀</span
             >
