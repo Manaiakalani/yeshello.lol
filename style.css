@@ -121,8 +121,8 @@ body {
 }
 
 .typing-animation {
-  animation: typing 3.5s steps(16, end), blink-caret .75s step-end infinite;
   border-right: 2px solid var(--primary-color);
+  animation: blink-caret .75s step-end infinite;
 }
 
 .section-title {
@@ -505,24 +505,28 @@ strong, .term {
   top: 16px;
   right: 16px;
   z-index: 200;
-  background: var(--card-bg);
-  border: 1px solid var(--conversation-border);
-  border-radius: 50%;
-  width: 44px;
+  background: linear-gradient(135deg, var(--genz-gradient-start), var(--genz-gradient-end));
+  border: none;
+  border-radius: 22px;
   height: 44px;
+  padding: 0 16px;
   display: flex;
   align-items: center;
   justify-content: center;
+  gap: 6px;
   cursor: pointer;
-  font-size: 1.3rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-  transition: background-color 0.3s ease, border-color 0.3s ease, transform 0.2s ease;
-  padding: 0;
+  font-size: 1.1rem;
+  font-weight: 700;
+  font-family: inherit;
+  color: #fff;
+  box-shadow: 0 2px 12px rgba(255, 51, 102, 0.3);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
   line-height: 1;
 }
 
 .theme-toggle:hover {
-  transform: scale(1.1);
+  transform: scale(1.05);
+  box-shadow: 0 4px 16px rgba(255, 51, 102, 0.4);
 }
 
 .theme-toggle:active {
@@ -531,6 +535,13 @@ strong, .term {
 
 .theme-toggle .icon-sun,
 .theme-toggle .icon-moon {
+  pointer-events: none;
+}
+
+.toggle-label {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
   pointer-events: none;
 }
 
