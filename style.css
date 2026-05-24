@@ -545,7 +545,7 @@ strong, .term {
   pointer-events: none;
 }
 
-/* Theme toggle icon visibility — driven by data-theme attribute set by JS */
+/* Theme toggle icon visibility - driven by data-theme attribute set by JS */
 .theme-toggle .icon-moon { display: inline; }
 .theme-toggle .icon-sun  { display: none; }
 
@@ -575,7 +575,7 @@ strong, .term {
 
 /* ========== 8. Media Queries ========== */
 
-/* Reduced motion — top-level, applies to ALL screen sizes */
+/* Reduced motion - top-level, applies to ALL screen sizes */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;

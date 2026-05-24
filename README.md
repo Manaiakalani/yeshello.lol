@@ -15,7 +15,7 @@
 
 ---
 
-A humorous website that explores the *"Yes Hello"* communication style popular among Gen Z — where starting a conversation with just "Hello" and making people wait is a playful power move in digital communication.
+A humorous website that explores the *"Yes Hello"* communication style popular among Gen Z - where starting a conversation with just "Hello" and making people wait is a playful power move in digital communication.
 
 ## ✨ Features
 
@@ -32,10 +32,10 @@ A humorous website that explores the *"Yes Hello"* communication style popular a
 
 ## 🛠️ Tech Stack
 
-- **HTML5** — Semantic markup with structured data (JSON-LD)
-- **CSS3** — Custom properties, dark theme, modern animations
-- **Vanilla JavaScript** — Zero dependencies
-- **Azure Static Web Apps** — Hosting with security headers (CSP, HSTS)
+- **HTML5** - Semantic markup with structured data (JSON-LD)
+- **CSS3** - Custom properties, dark theme, modern animations
+- **Vanilla JavaScript** - Zero dependencies
+- **Azure Static Web Apps** - Hosting with security headers (CSP, HSTS)
 
 ## 🚀 Getting Started
 
