@@ -25,19 +25,19 @@ html {
 
 /* ========== 1. Variables & Base Styles ========== */
 :root {
-  --primary-color: #ff9900;
+  --primary-color: #f90;
   --primary-hover: #e68a00;
   --text-color: #333;
   --text-muted: #666;
   --bg-color: #f8f8f8;
-  --card-bg: #ffffff;
-  --card-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  --card-bg: #fff;
+  --card-shadow: 0 5px 15px rgb(0, 0, 0, 0.1);
   --border-radius: 10px;
   --transition-speed: 0.3s;
   --genz-accent: #9d4edd;
-  --genz-gradient-start: #ff9900;
-  --genz-gradient-end: #ff3366;
-  --term-highlight: rgba(157, 78, 221, 0.15);
+  --genz-gradient-start: #f90;
+  --genz-gradient-end: #f36;
+  --term-highlight: rgb(157, 78, 221, 0.15);
   --conversation-bg: #fafafa;
   --conversation-border: #eee;
   --good-msg-bg: #e6f7ff;
@@ -52,6 +52,7 @@ html {
   --toast-color: #fff;
   --flyout-border: #ddd;
   --link-color: var(--primary-color);
+
   color-scheme: light dark;
 }
 
@@ -61,17 +62,17 @@ html {
   --text-muted: #aaa;
   --bg-color: #121212;
   --card-bg: #1e1e1e;
-  --card-shadow: 0 5px 15px rgba(0, 0, 0, 0.4);
-  --term-highlight: rgba(157, 78, 221, 0.25);
+  --card-shadow: 0 5px 15px rgb(0, 0, 0, 0.4);
+  --term-highlight: rgb(157, 78, 221, 0.25);
   --conversation-bg: #2a2a2a;
   --conversation-border: #333;
-  --good-msg-bg: rgba(157, 78, 221, 0.2);
-  --bad-msg-bg: rgba(255, 77, 79, 0.2);
+  --good-msg-bg: rgb(157, 78, 221, 0.2);
+  --bad-msg-bg: rgb(255, 77, 79, 0.2);
   --msg-bubble-bg: #2a2a2a;
   --footer-border: #333;
   --footer-text: #999;
   --section-title-color: #ccc;
-  --bad-tag-bg: rgba(255, 77, 79, 0.3);
+  --bad-tag-bg: rgb(255, 77, 79, 0.3);
   --bad-tag-color: #ffb0b0;
   --toast-bg: #e0e0e0;
   --toast-color: #121212;
@@ -88,7 +89,7 @@ html {
 }
 
 body {
-  font-family: 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', sans-serif;
+  font-family: Manrope, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', sans-serif;
   margin: 0;
   padding: 0;
   background-color: var(--bg-color);
@@ -119,15 +120,15 @@ body {
 
 /* ========== 3. Typography ========== */
 .main-title {
-  font-family: 'Poppins', 'Manrope', sans-serif;
+  font-family: Poppins, Manrope, sans-serif;
   color: var(--primary-color);
   margin-bottom: 20px;
   font-size: clamp(2rem, 5vw, 2.5rem);
-  text-shadow: 2px 2px 3px rgba(0, 0, 0, 0.1);
-  animation: colorChange 3s infinite alternate;
+  text-shadow: 2px 2px 3px rgb(0, 0, 0, 0.1);
+  animation: color-change 3s infinite alternate;
   white-space: nowrap;
   width: fit-content;
-  margin: 0 auto;
+  margin-inline: auto;
 }
 
 .typing-animation::after {
@@ -142,12 +143,12 @@ body {
 }
 
 @keyframes blink-caret {
-  from, to { opacity: 0 }
+  0%, 100% { opacity: 0 }
   50% { opacity: 1; }
 }
 
 .section-title {
-  font-family: 'Poppins', 'Manrope', sans-serif;
+  font-family: Poppins, Manrope, sans-serif;
   margin-top: 40px;
   margin-bottom: 20px;
   color: var(--section-title-color);
@@ -166,7 +167,7 @@ body {
 }
 
 /* ========== 4. Animations ========== */
-@keyframes colorChange {
+@keyframes color-change {
   0% { color: var(--primary-color); }
   50% { color: var(--primary-hover); }
   100% { color: #ff7518; }
@@ -176,23 +177,32 @@ body {
   0%, 20%, 50%, 80%, 100% {
     transform: translateY(-50%) translateX(-50%);
   }
+
   40% {
     transform: translateY(-55%) translateX(-50%);
   }
+
   60% {
     transform: translateY(-52%) translateX(-50%);
   }
 }
 
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes pulse-highlight {
-  0% { background-color: rgba(157, 78, 221, 0.25); }
-  50% { background-color: rgba(157, 78, 221, 0.5); }
-  100% { background-color: rgba(157, 78, 221, 0.25); }
+  0% { background-color: rgb(157, 78, 221, 0.25); }
+  50% { background-color: rgb(157, 78, 221, 0.5); }
+  100% { background-color: rgb(157, 78, 221, 0.25); }
 }
 
 /* ========== 5. Gen Z Component Styles ========== */
@@ -204,7 +214,7 @@ body {
   display: block;
   margin: 30px auto;
   border-radius: 5px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 5px rgb(0, 0, 0, 0.1);
 }
 
 /* Footer */
@@ -300,7 +310,7 @@ strong, .term {
 }
 
 .term:hover {
-  background-color: rgba(157, 78, 221, 0.25);
+  background-color: rgb(157, 78, 221, 0.25);
 }
 
 .term-highlight {
@@ -342,7 +352,7 @@ strong, .term {
   display: flex;
   align-items: flex-start;
   margin-bottom: 15px;
-  animation: fadeIn 0.5s ease-in-out;
+  animation: fade-in 0.5s ease-in-out;
 }
 
 .avatar {
@@ -368,9 +378,9 @@ strong, .term {
   background-color: var(--msg-bubble-bg);
   padding: 10px 15px;
   border-radius: 15px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 1px 3px rgb(0, 0, 0, 0.1);
   max-width: calc(100% - 60px);
-  word-wrap: break-word;
+  overflow-wrap: break-word;
   transition: background-color 0.3s ease;
 }
 
@@ -486,7 +496,7 @@ strong, .term {
   transition: opacity 0.3s ease, background-color 0.3s ease;
   z-index: 1000;
   font-weight: 500;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 4px 12px rgb(0, 0, 0, 0.25);
   max-width: 90%;
   text-align: center;
 }
@@ -503,7 +513,7 @@ strong, .term {
 .flyout-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.4);
+  background: rgb(0, 0, 0, 0.4);
   z-index: 99;
   transition: opacity 0.2s ease;
 }
@@ -531,14 +541,14 @@ strong, .term {
   font-weight: 700;
   font-family: inherit;
   color: #fff;
-  box-shadow: 0 2px 12px rgba(255, 51, 102, 0.3);
+  box-shadow: 0 2px 12px rgb(255, 51, 102, 0.3);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
   line-height: 1;
 }
 
 .theme-toggle:hover {
   transform: scale(1.05);
-  box-shadow: 0 4px 16px rgba(255, 51, 102, 0.4);
+  box-shadow: 0 4px 16px rgb(255, 51, 102, 0.4);
 }
 
 .theme-toggle:active {
@@ -606,7 +616,7 @@ strong, .term {
 }
 
 /* Tablet & small desktop */
-@media (min-width: 769px) {
+@media (width >= 769px) {
   .container {
     padding: 50px 6%;
   }
@@ -631,7 +641,7 @@ strong, .term {
 }
 
 /* Large desktop */
-@media (min-width: 1024px) {
+@media (width >= 1024px) {
   .container {
     max-width: 860px;
     padding: 60px 7%;
@@ -643,7 +653,7 @@ strong, .term {
 }
 
 /* Mobile */
-@media (max-width: 768px) {
+@media (width <= 768px) {
   .container {
     width: 95%;
     padding: 24px 4%;
@@ -707,7 +717,7 @@ strong, .term {
 }
 
 /* Small mobile */
-@media (max-width: 380px) {
+@media (width <= 380px) {
   .container {
     width: 98%;
     padding: 18px 3%;

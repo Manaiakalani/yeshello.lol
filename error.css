@@ -1,9 +1,9 @@
 /* Shared error page styles */
 :root {
   --bg: #f8f8f8;
-  --card-bg: #ffffff;
+  --card-bg: #fff;
   --text: #333;
-  --accent: #ff9900;
+  --accent: #f90;
   --muted: #666;
 }
 
@@ -12,15 +12,19 @@
     --bg: #121212;
     --card-bg: #1e1e1e;
     --text: #e0e0e0;
-    --accent: #ff9900;
+    --accent: #f90;
     --muted: #aaa;
   }
 }
 
-* { box-sizing: border-box; margin: 0; padding: 0; }
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
 
 body {
-  font-family: 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-family: Manrope, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   background-color: var(--bg);
   color: var(--text);
   display: flex;
@@ -35,14 +39,14 @@ body {
 .error-container {
   background-color: var(--card-bg);
   border-radius: 10px;
-  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+  box-shadow: 0 5px 15px rgb(0,0,0,0.1);
   padding: 60px 40px;
   max-width: 500px;
   width: 100%;
 }
 
 .error-code {
-  font-family: 'Poppins', sans-serif;
+  font-family: Poppins, sans-serif;
   font-size: 6rem;
   font-weight: 700;
   color: var(--accent);
@@ -51,7 +55,7 @@ body {
 }
 
 .error-title {
-  font-family: 'Poppins', sans-serif;
+  font-family: Poppins, sans-serif;
   font-size: 1.5rem;
   margin-bottom: 16px;
 }
@@ -78,7 +82,7 @@ body {
   background-color: #e68a00;
 }
 
-@media (max-width: 480px) {
+@media (width <= 480px) {
   .error-container { padding: 40px 24px; }
   .error-code { font-size: 4rem; }
 }
