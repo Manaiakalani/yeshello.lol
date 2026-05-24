@@ -357,6 +357,16 @@ strong, .term {
   flex-shrink: 0;
 }
 
+/* Ensure <picture> wrapper doesn't break flex layout */
+.message picture {
+  flex-shrink: 0;
+  margin-right: 10px;
+}
+
+.message picture .avatar {
+  margin-right: 0;
+}
+
 .good-hello-message, .bad-hello-message {
   background-color: var(--msg-bubble-bg);
   padding: 10px 15px;
