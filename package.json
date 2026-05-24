@@ -5,7 +5,11 @@
   "description": "The Gen Z Communication Power Move - a humorous website exploring the 'Yes Hello' communication style",
   "scripts": {
     "test": "playwright test",
-    "test:ui": "playwright test --ui"
+    "test:ui": "playwright test --ui",
+    "lint": "npm run lint:html && npm run lint:css && npm run lint:js",
+    "lint:html": "htmlhint \"*.html\"",
+    "lint:css": "stylelint \"*.css\"",
+    "lint:js": "eslint \"*.js\""
   },
   "repository": {
     "type": "git",

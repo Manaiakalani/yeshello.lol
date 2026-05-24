@@ -27,6 +27,7 @@ body {
   justify-content: center;
   align-items: center;
   min-height: 100vh;
+  min-height: 100dvh;
   text-align: center;
   padding: 20px;
 }
