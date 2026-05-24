@@ -1,0 +1,31 @@
+name: Lint
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install linters
+        run: npm install -g htmlhint stylelint stylelint-config-standard eslint@8
+
+      - name: Lint HTML
+        run: npx htmlhint "*.html" --config '{"tagname-lowercase":true,"attr-lowercase":true,"attr-value-double-quotes":true,"doctype-first":true,"tag-pair":true,"spec-char-escape":false,"id-unique":true,"src-not-empty":true,"attr-no-duplication":true,"alt-require":true}'
+
+      - name: Lint CSS
+        run: |
+          echo '{"extends":"stylelint-config-standard","rules":{"no-descending-specificity":null,"selector-class-pattern":null,"custom-property-pattern":null,"declaration-block-no-redundant-longhand-properties":null,"alpha-value-notation":null,"color-function-notation":null,"shorthand-property-no-redundant-values":null}}' > .stylelintrc.json
+          npx stylelint "*.css"
+
+      - name: Lint JavaScript
+        run: |
+          echo '{"env":{"browser":true,"es6":true},"parserOptions":{"ecmaVersion":2020},"rules":{"no-unused-vars":"warn","no-undef":"error","semi":"warn"}}' > .eslintrc.json
+          npx eslint "*.js"
