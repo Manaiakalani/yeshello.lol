@@ -27,13 +27,14 @@
       name="keywords"
       content="hello, communication, yeshello, productivity, gen z, millennial, slang, no cap, bet, rizz, slay, bussin"
     />
-    <meta name="author" content="Maximilian Stein" />
+    <meta name="author" content="Manaiakalani" />
 
     <!-- 🐦 X (Twitter) -->
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="Yes, Hello! Bet! - The Gen Z Power Move" />
     <meta name="twitter:description" content="Just say 'Hello' and make them wait - the Gen Z communication power move. No cap, it's bussin." />
     <meta name="twitter:image" content="https://yeshello.lol/images/ThisIsDoge.png" />
+    <meta name="twitter:image:alt" content="Doge meme character illustrating the Yes Hello power move" />
 
     <!-- 🔗 Open Graph (it’s giving link preview) -->
     <meta property="og:title" content="Yes, Hello! Bet! - The Gen Z Power Move" />
@@ -45,16 +46,12 @@
     <meta property="og:url" content="https://yeshello.lol" />
     <meta property="og:site_name" content="YesHello.lol" />
     <meta property="og:image" content="https://yeshello.lol/images/ThisIsDoge.png" />
+    <meta property="og:image:alt" content="Doge meme character illustrating the Yes Hello power move" />
     <meta property="og:image:width" content="800" />
     <meta property="og:image:height" content="600" />
     <meta property="og:locale" content="en_US" />
 
-    <!-- 🔤 Fonts -->
-    <link
-      rel="preload"
-      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;700&family=Poppins:wght@700&display=swap"
-      as="style"
-    />
+    <!-- Fonts -->
     <link
       href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;700&family=Poppins:wght@700&display=swap"
       rel="stylesheet"
@@ -156,9 +153,8 @@
       </div>
 
       <header>
-        <!-- 🗣️ Title gets injected by JS (dynamic = kinda iconic) -->
-        <h1 class="main-title" aria-live="polite"></h1>
-        <noscript><style>.main-title::after { content: "Yes, Hello! Bet!"; }</style></noscript>
+        <!-- Title gets typed by JS; fallback text for no-JS and SEO -->
+        <h1 class="main-title" aria-live="polite">Yes, Hello! Bet!</h1>
       </header>
 
       <main id="main-content">
@@ -215,7 +211,8 @@
               src="images/ThisIsDoge.png"
               alt="Doge meme character saying just 'Hello' and nothing else"
               class="featured-image"
-              loading="lazy"
+              loading="eager"
+              fetchpriority="high"
               width="800"
               height="600"
             />

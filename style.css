@@ -312,7 +312,8 @@ strong, .term {
 
 #close-flyout:hover, #close-flyout:focus {
   background-color: var(--primary-hover);
-  outline: none;
+  outline: 2px solid var(--text-color);
+  outline-offset: 2px;
 }
 
 /* Conversation Sections */
