@@ -11,8 +11,16 @@
   // ── Theme Management ──────────────────────────────────────
   const THEME_KEY = 'yeshello-theme';
 
+  function storageGet(key) {
+    try { return localStorage.getItem(key); } catch (_) { return null; }
+  }
+
+  function storageSet(key, value) {
+    try { localStorage.setItem(key, value); } catch (_) { /* private browsing */ }
+  }
+
   function getPreferredTheme() {
-    const stored = localStorage.getItem(THEME_KEY);
+    const stored = storageGet(THEME_KEY);
     if (stored) return stored;
     return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
   }
@@ -28,7 +36,7 @@
   function toggleTheme() {
     const current = document.documentElement.getAttribute('data-theme') || getPreferredTheme();
     const next = current === 'dark' ? 'light' : 'dark';
-    localStorage.setItem(THEME_KEY, next);
+    storageSet(THEME_KEY, next);
     applyTheme(next);
   }
 
@@ -36,11 +44,17 @@
   applyTheme(getPreferredTheme());
 
   // Listen for OS theme changes (only if user hasn't set manual preference)
-  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
-    if (!localStorage.getItem(THEME_KEY)) {
+  var mql = window.matchMedia('(prefers-color-scheme: dark)');
+  var onThemeChange = function (e) {
+    if (!storageGet(THEME_KEY)) {
       applyTheme(e.matches ? 'dark' : 'light');
     }
-  });
+  };
+  if (mql.addEventListener) {
+    mql.addEventListener('change', onThemeChange);
+  } else if (mql.addListener) {
+    mql.addListener(onThemeChange);
+  }
 
   // ── DOM Ready ─────────────────────────────────────────────
   function onReady(fn) {
@@ -159,13 +173,16 @@
     }
 
     // ── Toast ─────────────────────────────────────────────
+    var toastTimeoutId = null;
     function showToast(message, duration) {
       if (!els.toast) return;
       duration = duration || 3000;
+      if (toastTimeoutId) clearTimeout(toastTimeoutId);
       els.toast.textContent = message;
       els.toast.classList.remove('hidden');
-      setTimeout(function () {
+      toastTimeoutId = setTimeout(function () {
         els.toast.classList.add('hidden');
+        toastTimeoutId = null;
       }, duration);
     }
 
@@ -261,6 +278,7 @@
         backdrop.setAttribute('aria-hidden', 'false');
       }
       document.body.style.overflow = 'hidden';
+      if (els.secretEmoji) els.secretEmoji.setAttribute('aria-expanded', 'true');
       if (els.closeFlyoutBtn) els.closeFlyoutBtn.focus();
     }
 
@@ -273,7 +291,10 @@
         backdrop.setAttribute('aria-hidden', 'true');
       }
       document.body.style.overflow = '';
-      if (els.secretEmoji) els.secretEmoji.focus();
+      if (els.secretEmoji) {
+        els.secretEmoji.setAttribute('aria-expanded', 'false');
+        els.secretEmoji.focus();
+      }
     }
 
     // Focus trap - keep Tab/Shift+Tab inside the flyout when open

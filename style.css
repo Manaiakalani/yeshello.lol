@@ -216,7 +216,7 @@ body {
 a {
   color: var(--link-color);
   text-decoration: none;
-  transition: all var(--transition-speed) ease-in-out;
+  transition: color var(--transition-speed) ease-in-out;
 }
 
 a:hover {
@@ -428,7 +428,7 @@ strong, .term {
   border-radius: 5px;
   font-weight: bold;
   cursor: pointer;
-  transition: all var(--transition-speed) ease;
+  transition: background-color var(--transition-speed) ease, color var(--transition-speed) ease;
   font-size: 0.95rem;
   min-height: 44px;
   min-width: 44px;
