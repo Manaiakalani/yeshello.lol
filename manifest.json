@@ -3,6 +3,7 @@
   "short_name": "YesHello",
   "description": "The Gen Z Communication Power Move - Just say 'Hello' and make them wait.",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
   "background_color": "#f8f8f8",
   "theme_color": "#ff9900",
@@ -16,6 +17,21 @@
       "src": "/apple-touch-icon.png",
       "sizes": "180x180",
       "type": "image/png"
+    },
+    {
+      "src": "/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "categories": ["entertainment", "social"],
+  "shortcuts": [
+    {
+      "name": "Slang Glossary",
+      "short_name": "Glossary",
+      "description": "View the Gen Z slang glossary",
+      "url": "/#glossary"
     }
   ]
 }

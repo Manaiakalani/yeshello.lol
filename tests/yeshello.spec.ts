@@ -24,7 +24,6 @@ test.describe('YesHello.lol - Page Load & Structure', () => {
     page.on('console', (msg) => {
       if (msg.type() === 'error') {
         const text = msg.text();
-        // Ignore CSP violations from third-party scripts (analytics, Cloudflare)
         if (text.includes('Content Security Policy') || text.includes('CSP')) return;
         errors.push(text);
       }
@@ -33,31 +32,33 @@ test.describe('YesHello.lol - Page Load & Structure', () => {
     await page.waitForLoadState('networkidle');
     expect(errors).toHaveLength(0);
   });
+
+  test('should have hero image visible', async ({ page }) => {
+    await page.goto('/');
+    const heroImg = page.locator('.featured-image');
+    await expect(heroImg).toBeVisible();
+    await expect(heroImg).toHaveAttribute('alt', /.+/);
+  });
 });
 
 test.describe('YesHello.lol - Dark Mode', () => {
   test('should have a theme toggle button', async ({ page }) => {
     await page.goto('/');
-    const toggle = page.locator('[aria-label*="theme" i], [aria-label*="dark" i], [aria-label*="mode" i], .theme-toggle, #theme-toggle, button:has-text("🌙"), button:has-text("☀")');
+    const toggle = page.locator('[data-testid="theme-toggle"], #theme-toggle');
     await expect(toggle.first()).toBeVisible();
   });
 
   test('should toggle between light and dark mode', async ({ page }) => {
     await page.goto('/');
-    const toggle = page.locator('[aria-label*="theme" i], [aria-label*="dark" i], [aria-label*="mode" i], .theme-toggle, #theme-toggle, button:has-text("🌙"), button:has-text("☀")');
+    const toggle = page.locator('[data-testid="theme-toggle"], #theme-toggle');
 
     const initialTheme = await page.evaluate(() =>
-      document.documentElement.getAttribute('data-theme') ||
-      document.body.getAttribute('data-theme') ||
-      document.documentElement.classList.toString()
+      document.documentElement.getAttribute('data-theme')
     );
     await toggle.first().click();
-    // Wait for theme transition
     await page.waitForTimeout(300);
     const newTheme = await page.evaluate(() =>
-      document.documentElement.getAttribute('data-theme') ||
-      document.body.getAttribute('data-theme') ||
-      document.documentElement.classList.toString()
+      document.documentElement.getAttribute('data-theme')
     );
 
     expect(initialTheme).not.toBe(newTheme);
@@ -65,41 +66,76 @@ test.describe('YesHello.lol - Dark Mode', () => {
 });
 
 test.describe('YesHello.lol - Slang Glossary', () => {
-  test('should reveal glossary when emoji is clicked', async ({ page }) => {
+  test('should open glossary and set correct aria states', async ({ page }) => {
     await page.goto('/');
 
-    // Find the 👀 trigger element
-    const trigger = page.locator('text=👀').first();
-    if (await trigger.isVisible()) {
-      await trigger.click();
-      // Wait a moment for any animation
-      await page.waitForTimeout(500);
+    const trigger = page.locator('[data-testid="glossary-trigger"], #secret-emoji');
+    const flyout = page.locator('[data-testid="glossary-flyout"], #slang-flyout');
 
-      // Check that glossary content becomes visible
-      const glossary = page.locator('[class*="glossary"], [id*="glossary"], [class*="slang"], [id*="slang"], dialog, [role="dialog"]');
-      if (await glossary.count() > 0) {
-        await expect(glossary.first()).toBeVisible();
-      }
-    }
+    // Initially hidden
+    await expect(flyout.first()).toHaveAttribute('aria-hidden', 'true');
+
+    // Open glossary
+    await trigger.first().click();
+    await page.waitForTimeout(500);
+
+    // Should be visible with correct aria state
+    await expect(flyout.first()).toHaveAttribute('aria-hidden', 'false');
+  });
+
+  test('should close glossary with close button and return focus', async ({ page }) => {
+    await page.goto('/');
+
+    const trigger = page.locator('[data-testid="glossary-trigger"], #secret-emoji');
+    const flyout = page.locator('[data-testid="glossary-flyout"], #slang-flyout');
+    const closeBtn = page.locator('[data-testid="glossary-close"], #close-flyout');
+
+    // Open then close
+    await trigger.first().click();
+    await page.waitForTimeout(500);
+    await closeBtn.first().click();
+    await page.waitForTimeout(300);
+
+    // Should be hidden again
+    await expect(flyout.first()).toHaveAttribute('aria-hidden', 'true');
+
+    // Focus should return to the trigger
+    const focusedId = await page.evaluate(() => document.activeElement?.id);
+    expect(focusedId).toBe('secret-emoji');
+  });
+
+  test('should close glossary with Escape key', async ({ page }) => {
+    await page.goto('/');
+
+    const trigger = page.locator('[data-testid="glossary-trigger"], #secret-emoji');
+    const flyout = page.locator('[data-testid="glossary-flyout"], #slang-flyout');
+
+    await trigger.first().click();
+    await page.waitForTimeout(500);
+    await expect(flyout.first()).toHaveAttribute('aria-hidden', 'false');
+
+    await page.keyboard.press('Escape');
+    await page.waitForTimeout(300);
+    await expect(flyout.first()).toHaveAttribute('aria-hidden', 'true');
   });
 });
 
 test.describe('YesHello.lol - Social Sharing', () => {
-  test('should display social sharing buttons', async ({ page }) => {
+  test('should display share buttons', async ({ page }) => {
     await page.goto('/');
-    const shareButtons = page.locator('a[href*="twitter.com"], a[href*="x.com"], [class*="share"], [aria-label*="share" i], button:has-text("share")');
-    expect(await shareButtons.count()).toBeGreaterThan(0);
+    const shareButtons = page.locator('[data-testid="share-x"], .x-share, [data-testid="share-copy"], .copy');
+    expect(await shareButtons.count()).toBeGreaterThanOrEqual(2);
   });
 });
 
 test.describe('YesHello.lol - Accessibility', () => {
-  test('should have proper heading hierarchy', async ({ page }) => {
+  test('should have exactly one h1', async ({ page }) => {
     await page.goto('/');
     const h1 = page.locator('h1');
     expect(await h1.count()).toBe(1);
   });
 
-  test('should have alt text on images', async ({ page }) => {
+  test('should have alt text on all images', async ({ page }) => {
     await page.goto('/');
     const images = page.locator('img');
     const count = await images.count();
@@ -111,13 +147,12 @@ test.describe('YesHello.lol - Accessibility', () => {
 
   test('should be keyboard navigable', async ({ page }) => {
     await page.goto('/');
-    // Tab through interactive elements
     await page.keyboard.press('Tab');
     const focused = page.locator(':focus');
     await expect(focused).toBeVisible();
   });
 
-  test('should have skip-to-content or proper landmarks', async ({ page }) => {
+  test('should have proper landmarks', async ({ page }) => {
     await page.goto('/');
     const landmarks = page.locator('main, [role="main"], nav, [role="navigation"], header, footer');
     expect(await landmarks.count()).toBeGreaterThan(0);
@@ -131,22 +166,23 @@ test.describe('YesHello.lol - Responsive Design', () => {
     await page.goto('/');
     const h1 = page.locator('h1');
     await expect(h1).toBeVisible();
-    // Content should not overflow horizontally
     const bodyWidth = await page.evaluate(() => document.body.scrollWidth);
-    expect(bodyWidth).toBeLessThanOrEqual(375 + 5); // small tolerance
+    expect(bodyWidth).toBeLessThanOrEqual(375 + 5);
   });
 });
 
 test.describe('YesHello.lol - 404 Page', () => {
-  test('should show custom 404 page for invalid routes', async ({ page }) => {
+  test('should show custom 404 page with proper content', async ({ page }) => {
     const response = await page.goto('/this-page-does-not-exist-12345');
-    // Azure Static Web Apps should serve 404.html
     if (response) {
       expect(response.status()).toBe(404);
     }
-    // The page should have some content (not a blank/generic error)
-    const body = page.locator('body');
-    const text = await body.textContent();
-    expect(text?.length).toBeGreaterThan(50);
+    const errorCode = page.locator('.error-code');
+    await expect(errorCode).toContainText('404');
+    const errorTitle = page.locator('.error-title');
+    await expect(errorTitle).toBeVisible();
+    const homeLink = page.locator('.home-link');
+    await expect(homeLink).toBeVisible();
+    await expect(homeLink).toHaveAttribute('href', '/');
   });
 });

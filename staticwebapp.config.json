@@ -48,6 +48,12 @@
       "headers": {
         "Cache-Control": "public, max-age=2592000, immutable"
       }
+    },
+    {
+      "route": "/error.css",
+      "headers": {
+        "Cache-Control": "public, max-age=86400"
+      }
     }
   ]
 }
