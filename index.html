@@ -55,7 +55,15 @@
     <link
       href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;700&family=Poppins:wght@700&display=swap"
       rel="stylesheet"
+      media="print"
+      onload="this.media='all'"
     />
+    <noscript>
+      <link
+        href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;700&family=Poppins:wght@700&display=swap"
+        rel="stylesheet"
+      />
+    </noscript>
 
     <!-- 📈 Analytics (respectfully, for the data girlies) -->
     <script
@@ -174,7 +182,7 @@
         <h1 class="main-title">Yes, Hello! Bet!</h1>
       </header>
 
-      <main id="main-content">
+      <main id="main-content" tabindex="-1">
         <!-- 😌 Intro (setting the vibe) -->
         <section class="intro">
           <h2 class="section-title">The Gen Z Communication Power Move</h2>
