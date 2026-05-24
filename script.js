@@ -105,28 +105,28 @@
       if (!messages || !messages.length || prefersReducedMotion) return;
 
       messages.forEach(function (msg, idx) {
-        var p = msg.querySelector('p');
+        const p = msg.querySelector('p');
         if (!p) return;
 
         // Preserve the full innerHTML so we can restore it
-        var fullHTML = p.innerHTML;
-        var senderEl = p.querySelector('.sender');
-        var senderHTML = senderEl ? senderEl.outerHTML + ' ' : '';
-        var senderText = senderEl ? senderEl.textContent : '';
+        const fullHTML = p.innerHTML;
+        const senderEl = p.querySelector('.sender');
+        const senderHTML = senderEl ? senderEl.outerHTML + ' ' : '';
+        const senderText = senderEl ? senderEl.textContent : '';
 
         // Extract just the text portion after the sender
-        var fullText = p.textContent;
-        var bodyText = senderText ? fullText.substring(fullText.indexOf(senderText) + senderText.length).trim() : fullText;
+        const fullText = p.textContent;
+        const bodyText = senderText ? fullText.substring(fullText.indexOf(senderText) + senderText.length).trim() : fullText;
 
         // Clear and prepare for animation
         p.innerHTML = senderHTML;
 
-        var delay = idx === 0 ? 600 : idx * 1400;
-        var charSpeed = idx === 0 ? 40 : 55;
+        const delay = idx === 0 ? 600 : idx * 1400;
+        const charSpeed = idx === 0 ? 40 : 55;
 
         setTimeout(function () {
-          var ci = 0;
-          var interval = setInterval(function () {
+          let ci = 0;
+          const interval = setInterval(function () {
             if (ci >= bodyText.length) {
               clearInterval(interval);
               // Restore full HTML (with any .term spans, etc.) after animation
@@ -164,7 +164,7 @@
         });
       } else {
         // Fallback
-        var ta = document.createElement('textarea');
+        const ta = document.createElement('textarea');
         ta.value = window.location.href;
         ta.style.cssText = 'position:fixed;opacity:0';
         document.body.appendChild(ta);
@@ -179,24 +179,24 @@
       }
     }
 
-    // ── Twitter Share ─────────────────────────────────────
-    function shareTwitter() {
-      var phrases = [
+    // ── X (Twitter) Share ────────────────────────────────
+    function shareOnX() {
+      const phrases = [
         "This 'Hello' technique is giving power move!",
         "No cap, just say 'Hello' and make them wait.",
         "The way Gen Z texts is actually genius, bestie!",
         "I finally understood the assignment with this Hello method.",
         "This is literally the most iconic texting strat ever.",
       ];
-      var phrase = phrases[Math.floor(Math.random() * phrases.length)];
-      var url = 'https://twitter.com/intent/tweet?text=' +
+      const phrase = phrases[Math.floor(Math.random() * phrases.length)];
+      const url = 'https://x.com/intent/post?text=' +
         encodeURIComponent(phrase + ' Check it:') +
         '&url=' + encodeURIComponent(window.location.href);
       window.open(url, '_blank', 'noopener,noreferrer');
     }
 
     // ── Term Tooltips ─────────────────────────────────────
-    var descriptions = {
+    const descriptions = {
       'filler': 'A phrase used to fill space in conversation',
       'periodt': 'Period with a T — statement is final',
       'no-cap': 'Not lying, telling the truth',
@@ -227,7 +227,7 @@
     };
 
     els.terms.forEach(function (term) {
-      var key = term.getAttribute('data-term');
+      const key = term.getAttribute('data-term');
       term.setAttribute('tabindex', '0');
       term.setAttribute('role', 'button');
       if (key && descriptions[key]) {
@@ -247,7 +247,7 @@
     });
 
     // ── Flyout ────────────────────────────────────────────
-    var backdrop = document.getElementById('flyout-backdrop');
+    const backdrop = document.getElementById('flyout-backdrop');
 
     function openFlyout() {
       if (!els.slangFlyout) return;
@@ -257,7 +257,8 @@
         backdrop.classList.remove('hidden');
         backdrop.setAttribute('aria-hidden', 'false');
       }
-      els.closeFlyoutBtn && els.closeFlyoutBtn.focus();
+      document.body.style.overflow = 'hidden';
+      if (els.closeFlyoutBtn) els.closeFlyoutBtn.focus();
     }
 
     function closeFlyout() {
@@ -268,7 +269,8 @@
         backdrop.classList.add('hidden');
         backdrop.setAttribute('aria-hidden', 'true');
       }
-      els.secretEmoji && els.secretEmoji.focus();
+      document.body.style.overflow = '';
+      if (els.secretEmoji) els.secretEmoji.focus();
     }
 
     // Focus trap — keep Tab/Shift+Tab inside the flyout when open
@@ -276,13 +278,13 @@
       if (!els.slangFlyout || els.slangFlyout.classList.contains('hidden')) return;
       if (e.key !== 'Tab') return;
 
-      var focusable = els.slangFlyout.querySelectorAll(
+      const focusable = els.slangFlyout.querySelectorAll(
         'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
       );
       if (!focusable.length) return;
 
-      var first = focusable[0];
-      var last = focusable[focusable.length - 1];
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
 
       if (e.shiftKey) {
         if (document.activeElement === first) {
@@ -320,11 +322,11 @@
     });
 
     // ── Share Buttons ─────────────────────────────────────
-    if (els.twitterBtn) els.twitterBtn.addEventListener('click', shareTwitter);
+    if (els.twitterBtn) els.twitterBtn.addEventListener('click', shareOnX);
     if (els.copyBtn) els.copyBtn.addEventListener('click', copyLink);
 
     // ── Dynamic Copyright Year ────────────────────────────
-    var yearEl = document.getElementById('copyright-year');
+    const yearEl = document.getElementById('copyright-year');
     if (yearEl) yearEl.textContent = new Date().getFullYear();
   });
 })();
