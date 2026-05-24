@@ -114,15 +114,25 @@ body {
   font-size: clamp(2rem, 5vw, 2.5rem);
   text-shadow: 2px 2px 3px rgba(0, 0, 0, 0.1);
   animation: colorChange 3s infinite alternate;
-  overflow: hidden;
   white-space: nowrap;
   width: fit-content;
   margin: 0 auto;
 }
 
-.typing-animation {
-  border-right: 2px solid var(--primary-color);
+.typing-animation::after {
+  content: "";
+  display: inline-block;
+  width: 2px;
+  height: 1em;
+  background-color: var(--primary-color);
+  margin-left: 2px;
+  vertical-align: text-bottom;
   animation: blink-caret .75s step-end infinite;
+}
+
+@keyframes blink-caret {
+  from, to { opacity: 0 }
+  50% { opacity: 1; }
 }
 
 .section-title {
@@ -145,16 +155,6 @@ body {
 }
 
 /* ========== 4. Animations ========== */
-@keyframes typing {
-  from { max-width: 0 }
-  to { max-width: 100% }
-}
-
-@keyframes blink-caret {
-  from, to { border-color: transparent }
-  50% { border-color: var(--primary-color); }
-}
-
 @keyframes colorChange {
   0% { color: var(--primary-color); }
   50% { color: var(--primary-hover); }
@@ -759,7 +759,10 @@ button, [role="button"]:not(.term) {
   .main-title {
     color: #333 !important;
     animation: none !important;
-    border-right: none !important;
+  }
+
+  .typing-animation::after {
+    display: none !important;
   }
 
   .term {
