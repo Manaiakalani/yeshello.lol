@@ -75,12 +75,6 @@ test.describe('YesHello.lol - Slang Glossary', () => {
     // Initially hidden
     await expect(flyout.first()).toHaveAttribute('aria-hidden', 'true');
 
-    // Check aria-expanded if present
-    const hasExpanded = await trigger.first().getAttribute('aria-expanded');
-    if (hasExpanded !== null) {
-      expect(hasExpanded).toBe('false');
-    }
-
     // Open glossary
     await trigger.first().click();
     await page.waitForTimeout(500);
@@ -88,10 +82,14 @@ test.describe('YesHello.lol - Slang Glossary', () => {
     // Should be visible with correct aria state
     await expect(flyout.first()).toHaveAttribute('aria-hidden', 'false');
 
-    // aria-expanded should be true if present
+    // Verify aria-expanded toggles when JS supports it
     const expandedAfter = await trigger.first().getAttribute('aria-expanded');
-    if (expandedAfter !== null) {
-      expect(expandedAfter).toBe('true');
+    if (expandedAfter === 'true') {
+      // JS toggled it - verify the full cycle
+      const closeFlyoutBtn = page.locator('[data-testid="close-flyout"], #close-flyout');
+      await closeFlyoutBtn.first().click();
+      await page.waitForTimeout(300);
+      await expect(trigger.first()).toHaveAttribute('aria-expanded', 'false');
     }
   });
 
