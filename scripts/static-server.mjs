@@ -14,7 +14,7 @@
  */
 import { createServer } from 'node:http';
 import { readFile, stat } from 'node:fs/promises';
-import { join, extname, normalize, sep } from 'node:path';
+import { join, extname, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const args = process.argv.slice(2);
@@ -23,7 +23,9 @@ function arg(name, fallback) {
   return i !== -1 && args[i + 1] ? args[i + 1] : fallback;
 }
 
-const ROOT = normalize(arg('root', join(fileURLToPath(new URL('.', import.meta.url)), '..')));
+/* resolve() (not normalize()) so a relative --root such as "." still yields an
+   absolute prefix for the containment check in safeResolve(). */
+const ROOT = resolve(arg('root', join(fileURLToPath(new URL('.', import.meta.url)), '..')));
 const PORT = Number(arg('port', process.env.PORT || 4280));
 
 const MIME = {
@@ -68,7 +70,10 @@ function safeResolve(pathname) {
   } catch {
     return null;
   }
-  const resolved = normalize(join(ROOT, decoded));
+  // NUL bytes can truncate paths in some syscalls; refuse them outright.
+  if (decoded.includes('\0')) return null;
+  // Force the path to be relative so an absolute "/etc/passwd" cannot override ROOT.
+  const resolved = resolve(ROOT, `.${decoded.startsWith('/') ? '' : '/'}${decoded}`);
   if (resolved !== ROOT && !resolved.startsWith(ROOT + sep)) return null;
   return resolved;
 }
@@ -84,30 +89,45 @@ async function readIfFile(filePath) {
 }
 
 const server = createServer(async (req, res) => {
-  const url = new URL(req.url, `http://${req.headers.host ?? 'localhost'}`);
-  let pathname = url.pathname;
-  if (pathname.endsWith('/')) pathname += 'index.html';
+  try {
+    // Fixed base: the client-controlled Host header must never reach the parser,
+    // since a malformed one ("Host: [bad") throws and would kill the process.
+    const url = new URL(req.url, 'http://127.0.0.1');
+    let pathname = url.pathname;
+    if (pathname.endsWith('/')) pathname += 'index.html';
 
-  const headers = { ...globalHeaders, ...routeHeaders(pathname) };
+    const headers = { ...globalHeaders, ...routeHeaders(pathname) };
 
-  const resolved = safeResolve(pathname);
-  let body = resolved ? await readIfFile(resolved) : null;
-  let status = 200;
+    const resolved = safeResolve(pathname);
+    let body = resolved ? await readIfFile(resolved) : null;
+    let status = 200;
 
-  if (body === null) {
-    status = 404;
-    const fallback = notFoundRewrite ? safeResolve(notFoundRewrite) : null;
-    body = fallback ? await readIfFile(fallback) : null;
-    pathname = notFoundRewrite ?? pathname;
-    if (body === null) body = Buffer.from('Not Found');
+    if (body === null) {
+      status = 404;
+      const fallback = notFoundRewrite ? safeResolve(notFoundRewrite) : null;
+      body = fallback ? await readIfFile(fallback) : null;
+      pathname = notFoundRewrite ?? pathname;
+      if (body === null) body = Buffer.from('Not Found');
+    }
+
+    res.writeHead(status, {
+      ...headers,
+      'Content-Type': MIME[extname(pathname).toLowerCase()] ?? 'application/octet-stream',
+      'Content-Length': body.length,
+    });
+    res.end(req.method === 'HEAD' ? undefined : body);
+  } catch (err) {
+    // Never let a single bad request take the server down mid-test-run.
+    console.error('static-server: request failed', err);
+    if (!res.headersSent) res.writeHead(500, { 'Content-Type': 'text/plain' });
+    res.end('Internal Server Error');
   }
+});
 
-  res.writeHead(status, {
-    ...headers,
-    'Content-Type': MIME[extname(pathname).toLowerCase()] ?? 'application/octet-stream',
-    'Content-Length': body.length,
-  });
-  res.end(req.method === 'HEAD' ? undefined : body);
+// Malformed request lines/headers surface here rather than as request events.
+server.on('clientError', (_err, socket) => {
+  if (socket.writable) socket.end('HTTP/1.1 400 Bad Request\r\nConnection: close\r\n\r\n');
+  socket.destroy();
 });
 
 server.listen(PORT, '127.0.0.1', () => {

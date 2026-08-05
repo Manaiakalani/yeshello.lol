@@ -112,6 +112,52 @@ test.describe('YesHello.lol - Dark Mode', () => {
   });
 });
 
+test.describe('YesHello.lol - Colour Contrast', () => {
+  // The orange is used both as foreground text and as a button background, and it
+  // changes per theme. A value that passes as text can still fail behind white
+  // label text, so assert the real computed pairs in both themes.
+  test('key controls meet WCAG AA in both themes', async ({ page }) => {
+    await page.goto('/');
+
+    const results = await page.evaluate(() => {
+      const lum = (rgb: number[]) =>
+        0.2126 * ch(rgb[0]) + 0.7152 * ch(rgb[1]) + 0.0722 * ch(rgb[2]);
+      function ch(v: number) {
+        const s = v / 255;
+        return s <= 0.03928 ? s / 12.92 : Math.pow((s + 0.055) / 1.055, 2.4);
+      }
+      const parse = (c: string) => (c.match(/\d+(\.\d+)?/g) ?? []).slice(0, 3).map(Number);
+      const ratio = (fg: string, bg: string) => {
+        const [a, b] = [lum(parse(fg)), lum(parse(bg))].sort((x, y) => y - x);
+        return (a + 0.05) / (b + 0.05);
+      };
+
+      const targets = [
+        { name: 'skip-link', sel: '.skip-link' },
+        { name: 'close-flyout', sel: '#close-flyout' },
+        { name: 'share-copy', sel: '.share-btn.copy, .copy' },
+      ];
+
+      const out: { theme: string; name: string; ratio: number }[] = [];
+      for (const theme of ['light', 'dark']) {
+        document.documentElement.setAttribute('data-theme', theme);
+        for (const t of targets) {
+          const el = document.querySelector(t.sel) as HTMLElement | null;
+          if (!el) continue;
+          const cs = getComputedStyle(el);
+          out.push({ theme, name: t.name, ratio: ratio(cs.color, cs.backgroundColor) });
+        }
+      }
+      return out;
+    });
+
+    expect(results.length).toBeGreaterThanOrEqual(6);
+    for (const r of results) {
+      expect(r.ratio, `${r.name} in ${r.theme} mode`).toBeGreaterThanOrEqual(4.5);
+    }
+  });
+});
+
 test.describe('YesHello.lol - Slang Glossary', () => {
   test('should open glossary and set correct aria states', async ({ page }) => {
     await page.goto('/');
