@@ -91,10 +91,7 @@ html {
   --bad-msg-bg: rgb(255, 77, 79, 0.2);
   --msg-bubble-bg: #2a2a2a;
   --footer-border: #333;
-
-  /* #aaa not #999: the footer contains a .term, and the purple highlight
-     composited over the dark background left #999 at 4.48:1, just under AA. */
-  --footer-text: #aaa;
+  --footer-text: #999;
   --section-title-color: #ccc;
   --bad-tag-bg: rgb(255, 77, 79, 0.3);
 
@@ -333,17 +330,24 @@ strong, .term {
   font-size: inherit;
   cursor: help;
 
-  /* Inherit rather than use --genz-accent: the accent is the same hue as the
-     --term-highlight background, so foreground and background moved together
-     and every .term sat at 1.5-3.8:1 in both themes. The highlight alone is a
-     sufficient affordance and inheriting clears AA with room to spare. */
-  color: inherit;
+  /* Not --genz-accent: the accent is the same hue as the --term-highlight
+     background, so foreground and background moved together and every .term sat
+     at 1.5-3.8:1 in both themes. Not `inherit` either - a .term in the footer
+     picked up the muted --footer-text and fell to 2.83:1 under the pulse. Pin it
+     to the body text colour so a term is legible wherever it is placed. */
+  color: var(--text-color);
   transition: background-color 0.2s ease;
   display: inline;
 }
 
 .term:hover {
   background-color: rgb(157, 78, 221, 0.25);
+}
+
+/* Keep the red tint the tag is designed around; measured 4.56:1 at worst
+   (light, pulse peak) once the purple highlight composites over it. */
+.bad-hello-tag .term {
+  color: var(--bad-tag-color);
 }
 
 .term-highlight {

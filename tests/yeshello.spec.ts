@@ -119,7 +119,7 @@ test.describe('YesHello.lol - Colour Contrast', () => {
   test('key controls meet WCAG AA in both themes', async ({ page }) => {
     await page.goto('/');
 
-    const results = await page.evaluate(() => {
+    const samples = await page.evaluate(() => {
       // Buttons transition background-color, so reading straight after flipping
       // the theme would capture an in-flight colour and make this test flaky.
       const freeze = document.createElement('style');
@@ -157,41 +157,68 @@ test.describe('YesHello.lol - Colour Contrast', () => {
         return (a + 0.05) / (b + 0.05);
       };
 
-      const targets = [
+      const buttons = [
         { name: 'skip-link', sel: '.skip-link' },
         { name: 'close-flyout', sel: '#close-flyout' },
         { name: 'share-copy', sel: '.share-btn.copy, .copy' },
-        { name: 'inline-term', sel: 'p .term' },
-        { name: 'glossary-term', sel: '#slang-flyout .term' },
-        { name: 'bad-tag-term', sel: '.bad-hello-tag .term' },
       ];
 
       const out: {
         theme: string;
         name: string;
         state: string;
+        kind: string;
         ratio: number;
         fg: string;
         bg: string;
       }[] = [];
+      // Every .term, not a sample: `color` used to be `inherit`, so a term's
+      // legibility depended on where it sat. A term in the footer picked up the
+      // muted --footer-text and fell to 2.83:1 while the sampled ones passed.
+      const terms = Array.from(document.querySelectorAll('.term')) as HTMLElement[];
+      const context = (el: HTMLElement) =>
+        el.closest('.bad-hello-tag')
+          ? 'bad-tag'
+          : el.closest('.footer')
+            ? 'footer'
+            : el.closest('#slang-flyout')
+              ? 'glossary'
+              : 'inline';
+
       for (const theme of ['light', 'dark']) {
         document.documentElement.setAttribute('data-theme', theme);
-        for (const t of targets) {
+        for (const t of buttons) {
           const el = document.querySelector(t.sel) as HTMLElement | null;
           if (!el) continue;
           const fg = parse(getComputedStyle(el).color);
+          const bg = effectiveBg(el);
+          out.push({
+            theme,
+            name: t.name,
+            state: 'rest',
+            kind: 'button',
+            ratio: ratio(fg, bg),
+            fg: getComputedStyle(el).color,
+            bg: `rgb(${bg.map(Math.round).join(', ')})`,
+          });
+        }
+        for (const el of terms) {
+          const fg = parse(getComputedStyle(el).color);
           const original = el.style.backgroundColor;
-          // rest, plus the :hover and pulse-highlight peak alphas for terms.
-          const states: [string, string | null][] = t.name.includes('term')
-            ? [['rest', null], ['hover', 'rgba(157, 78, 221, 0.25)'], ['pulse', 'rgba(157, 78, 221, 0.5)']]
-            : [['rest', null]];
+          // rest, plus the :hover and pulse-highlight peak alphas.
+          const states: [string, string | null][] = [
+            ['rest', null],
+            ['hover', 'rgba(157, 78, 221, 0.25)'],
+            ['pulse', 'rgba(157, 78, 221, 0.5)'],
+          ];
           for (const [state, override] of states) {
             if (override) el.style.backgroundColor = override;
             const bg = effectiveBg(el);
             out.push({
               theme,
-              name: t.name,
+              name: `${context(el)} term "${(el.textContent ?? '').trim().slice(0, 16)}"`,
               state,
+              kind: 'term',
               ratio: ratio(fg, bg),
               fg: getComputedStyle(el).color,
               bg: `rgb(${bg.map(Math.round).join(', ')})`,
@@ -201,11 +228,18 @@ test.describe('YesHello.lol - Colour Contrast', () => {
         }
       }
       freeze.remove();
-      return out;
+      return { out, termCount: terms.length, contexts: [...new Set(terms.map(context))].sort() };
     });
 
-    // 3 buttons (rest only) + 3 term variants x 3 states, across 2 themes.
-    expect(results.length).toBe(24);
+    const { out: results, termCount, contexts } = samples;
+
+    // Guard against a vacuous pass: every term must be sampled in both themes at
+    // all three states, and the four placement contexts must all still exist.
+    expect(termCount).toBeGreaterThan(20);
+    expect(contexts).toEqual(['bad-tag', 'footer', 'glossary', 'inline']);
+    expect(results.filter((r) => r.kind === 'button')).toHaveLength(3 * 2);
+    expect(results.filter((r) => r.kind === 'term')).toHaveLength(termCount * 3 * 2);
+
     for (const r of results) {
       expect(
         r.ratio,
