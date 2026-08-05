@@ -350,6 +350,12 @@ strong, .term {
   color: var(--bad-tag-color);
 }
 
+/* Likewise keep terms in a heading matching their heading rather than body
+   text; 4.80:1 at worst (light, pulse peak) against a 3:1 bar at 24px/600. */
+.section-title .term {
+  color: var(--section-title-color);
+}
+
 .term-highlight {
   animation: pulse-highlight 1s;
 }

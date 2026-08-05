@@ -181,9 +181,11 @@ test.describe('YesHello.lol - Colour Contrast', () => {
           ? 'bad-tag'
           : el.closest('.footer')
             ? 'footer'
-            : el.closest('#slang-flyout')
-              ? 'glossary'
-              : 'inline';
+            : el.closest('.section-title')
+              ? 'section-title'
+              : el.closest('#slang-flyout')
+                ? 'glossary'
+                : 'inline';
 
       for (const theme of ['light', 'dark']) {
         document.documentElement.setAttribute('data-theme', theme);
@@ -236,7 +238,7 @@ test.describe('YesHello.lol - Colour Contrast', () => {
     // Guard against a vacuous pass: every term must be sampled in both themes at
     // all three states, and the four placement contexts must all still exist.
     expect(termCount).toBeGreaterThan(20);
-    expect(contexts).toEqual(['bad-tag', 'footer', 'glossary', 'inline']);
+    expect(contexts).toEqual(['bad-tag', 'footer', 'glossary', 'inline', 'section-title']);
     expect(results.filter((r) => r.kind === 'button')).toHaveLength(3 * 2);
     expect(results.filter((r) => r.kind === 'term')).toHaveLength(termCount * 3 * 2);
 
