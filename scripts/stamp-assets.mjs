@@ -26,7 +26,17 @@ import { createHash } from 'node:crypto';
 import { readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { join, dirname, resolve, extname } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { EXT, EXTERNAL, STAMPABLE, candidates, isStamped, parts } from './asset-patterns.mjs';
+import {
+  ATTR,
+  EXTERNAL,
+  STAMPABLE,
+  candidates,
+  isStamped,
+  malformed,
+  parts,
+  srcsetCandidates,
+  srcsetText,
+} from './asset-patterns.mjs';
 
 const ROOT = resolve(join(dirname(fileURLToPath(import.meta.url)), '..'));
 const MANIFEST = 'manifest.json';
@@ -75,13 +85,6 @@ function update(name, next) {
   writes.set(file, next);
 }
 
-// One source of truth for both the stamping patterns and the audit, imported
-// from ./asset-patterns.mjs so the script and the spec cannot drift apart.
-// Surrounding whitespace is tolerated because browsers strip it: without this
-// the audit below would see a reference the stamper had skipped and turn a
-// harmlessly-formatted attribute into a deploy block with no in-repo fix.
-const REF = new RegExp(`((?:href|src)="\\s*)([^"\\s]+\\.(?:${EXT})(?:[?#][^"\\s]*)?)(\\s*")`, 'gi');
-
 // Returns the URL unchanged when it is not ours to stamp, so callers can tell
 // whether anything actually happened and leave untouched markup byte-identical.
 function stampOne(url, where) {
@@ -103,42 +106,24 @@ function stampOne(url, where) {
   return `${path}?${[...rest, `v=${hash}`].join('&')}${frag}`;
 }
 
-function stampRefs(text, where) {
-  return text.replace(REF, (match, open, url, close) => {
-    const next = stampOne(url, where);
-    return next === url ? match : `${open}${next}${close}`;
-  });
-}
-
-// srcset holds a comma-separated candidate list, each "url [descriptor]", so it
-// cannot be stamped by a single-URL pattern. Retina markup would otherwise be
-// unstampable and, thanks to the audit below, an outright deploy blocker.
-function stampSrcset(text, where) {
-  return text.replace(/(srcset=")([^"]*)(")/gi, (match, open, value, close) => {
-    // A data: URI may itself contain commas, so splitting would corrupt it.
-    // Bailing has to be loud: a local candidate sitting alongside one would
-    // otherwise go unstamped and unflagged, under the 30-day immutable rule.
-    if (/data:/i.test(value)) {
-      for (const url of candidates(value, true)) {
-        if (!EXTERNAL.test(url) && STAMPABLE.test(parts(url).path)) {
-          missed.push(`${where}: ${url} (in a srcset holding a data: URI)`);
-        }
-      }
-      return match;
+// A single pass over every reference-bearing attribute. Stamping used to run
+// two regexes of its own and the audit a third, each with its own idea of which
+// attributes and which quote style counted; single-quoted attributes and
+// `poster` were reachable by none of them.
+function stampAttrs(text, where) {
+  return text.replace(ATTR(), (match, name, quote, value) => {
+    let next;
+    if (name.toLowerCase() === 'srcset') {
+      const list = srcsetCandidates(value);
+      const stamped = list.map((c) => ({ ...c, url: stampOne(c.url, where) }));
+      next = stamped.some((c, i) => c.url !== list[i].url) ? srcsetText(stamped) : value;
+    } else {
+      // Surrounding whitespace is preserved rather than trimmed: browsers strip
+      // it, so reformatting it would be a change this gate has no reason to make.
+      const [, lead, core, trail] = value.match(/^(\s*)([\s\S]*?)(\s*)$/);
+      next = core ? lead + stampOne(core, where) + trail : value;
     }
-    let changed = false;
-    const next = value.split(',').map((candidate) => {
-      const bits = candidate.trim().split(/\s+/);
-      const url = bits[0];
-      if (!url) return candidate.trim();
-      const stamped = stampOne(url, where);
-      if (stamped === url) return candidate.trim();
-      changed = true;
-      return [stamped, ...bits.slice(1)].join(' ');
-    });
-    // Rewriting only when a candidate changed keeps this gate from reformatting
-    // markup it has no reason to touch.
-    return changed ? `${open}${next.join(', ')}${close}` : match;
+    return next === value ? match : `${name}=${quote}${next}${quote}`;
   });
 }
 
@@ -161,22 +146,22 @@ if (existsSync(join(ROOT, MANIFEST))) {
 // 2. Safety net. An unstamped local asset silently falls back to the long
 //    immutable cache rule - srcset was missed exactly that way - so a reference
 //    the patterns above do not reach must fail loudly rather than ship.
-const ATTR = /(href|src|srcset)="([^"]*)"/gi;
+const ATTR_NAMES = /^srcset$/i;
 
 for (const page of PAGES) {
   if (!existsSync(join(ROOT, page))) continue;
-  const stamped = stampSrcset(stampRefs(readFileSync(join(ROOT, page), 'utf8'), page), page);
+  const stamped = stampAttrs(readFileSync(join(ROOT, page), 'utf8'), page);
   update(page, stamped);
 
   // Audit the text we just produced, not the file on disk: under --check
   // nothing was written, so re-reading would flag ordinary staleness as an
   // unreachable reference and send you hunting the wrong bug.
-  for (const [, name, value] of stamped.matchAll(ATTR)) {
-    // A data: URI is skipped only as a candidate, never as a whole value:
-    // stampSrcset already reported anything local hiding beside one.
-    for (const url of candidates(value, name.toLowerCase() === 'srcset')) {
+  for (const [, name, , value] of stamped.matchAll(ATTR())) {
+    for (const url of candidates(value, ATTR_NAMES.test(name))) {
       if (isStamped(url) || EXTERNAL.test(url)) continue;
       if (STAMPABLE.test(parts(url).path)) missed.push(`${page}: ${url}`);
+      // A malformed candidate would otherwise be skipped in silence.
+      else if (malformed(url)) missed.push(`${page}: ${url} (malformed reference)`);
     }
   }
 }
