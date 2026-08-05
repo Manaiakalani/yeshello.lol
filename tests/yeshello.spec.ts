@@ -2,6 +2,7 @@ import { test, expect, type Page } from '@playwright/test';
 import {
   ATTR,
   EXTERNAL,
+  LIST_VALUED,
   STAMPABLE,
   candidates,
   isStamped,
@@ -668,7 +669,7 @@ test.describe('YesHello.lol - Cache Busting', () => {
       // The patterns come from the stamper's own module: a fourth hand-copy of
       // this list is exactly the drift that let srcset, and later .mjs, slip.
       const refs = [...html.matchAll(ATTR())]
-        .flatMap((m) => candidates(m[3], /^srcset$/i.test(m[1])))
+        .flatMap((m) => candidates(m[3], LIST_VALUED.test(m[1])))
         .filter((u) => !EXTERNAL.test(u) && STAMPABLE.test(parts(u).path));
       expect(refs.length, `expected local asset refs in ${page}`).toBeGreaterThanOrEqual(
         assets.length,

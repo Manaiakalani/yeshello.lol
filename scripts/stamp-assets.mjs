@@ -23,13 +23,15 @@
  * Run from CI before deploying. Idempotent: an existing ?v= is replaced.
  */
 import { createHash } from 'node:crypto';
-import { readFileSync, writeFileSync, existsSync } from 'node:fs';
+import { readFileSync, writeFileSync, existsSync, readdirSync } from 'node:fs';
 import { join, dirname, resolve, extname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
   ATTR,
   EXTERNAL,
+  LIST_VALUED,
   STAMPABLE,
+  UNQUOTED,
   candidates,
   isStamped,
   malformed,
@@ -40,7 +42,9 @@ import {
 
 const ROOT = resolve(join(dirname(fileURLToPath(import.meta.url)), '..'));
 const MANIFEST = 'manifest.json';
-const PAGES = ['index.html', '404.html'];
+// Discovered, not listed: a hard-coded page list means a new HTML file is
+// neither stamped nor audited and the gate still exits 0.
+const PAGES = readdirSync(ROOT).filter((f) => f.endsWith('.html'));
 const check = process.argv.includes('--check');
 
 // Text is hashed with newlines normalised: git stores LF but checks out CRLF on
@@ -113,7 +117,7 @@ function stampOne(url, where) {
 function stampAttrs(text, where) {
   return text.replace(ATTR(), (match, name, quote, value) => {
     let next;
-    if (name.toLowerCase() === 'srcset') {
+    if (LIST_VALUED.test(name)) {
       const list = srcsetCandidates(value);
       const stamped = list.map((c) => ({ ...c, url: stampOne(c.url, where) }));
       next = stamped.some((c, i) => c.url !== list[i].url) ? srcsetText(stamped) : value;
@@ -146,10 +150,9 @@ if (existsSync(join(ROOT, MANIFEST))) {
 // 2. Safety net. An unstamped local asset silently falls back to the long
 //    immutable cache rule - srcset was missed exactly that way - so a reference
 //    the patterns above do not reach must fail loudly rather than ship.
-const ATTR_NAMES = /^srcset$/i;
+const ATTR_NAMES = LIST_VALUED;
 
 for (const page of PAGES) {
-  if (!existsSync(join(ROOT, page))) continue;
   const stamped = stampAttrs(readFileSync(join(ROOT, page), 'utf8'), page);
   update(page, stamped);
 
@@ -163,6 +166,9 @@ for (const page of PAGES) {
       // A malformed candidate would otherwise be skipped in silence.
       else if (malformed(url)) missed.push(`${page}: ${url} (malformed reference)`);
     }
+  }
+  for (const [m] of stamped.matchAll(UNQUOTED())) {
+    missed.push(`${page}: ${m.trim()} (unquoted attribute - add quotes)`);
   }
 }
 
