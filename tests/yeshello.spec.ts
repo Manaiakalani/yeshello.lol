@@ -120,6 +120,12 @@ test.describe('YesHello.lol - Colour Contrast', () => {
     await page.goto('/');
 
     const results = await page.evaluate(() => {
+      // Buttons transition background-color, so reading straight after flipping
+      // the theme would capture an in-flight colour and make this test flaky.
+      const freeze = document.createElement('style');
+      freeze.textContent = '*, *::before, *::after { transition: none !important; animation: none !important; }';
+      document.head.appendChild(freeze);
+
       const lum = (rgb: number[]) =>
         0.2126 * ch(rgb[0]) + 0.7152 * ch(rgb[1]) + 0.0722 * ch(rgb[2]);
       function ch(v: number) {
@@ -138,22 +144,43 @@ test.describe('YesHello.lol - Colour Contrast', () => {
         { name: 'share-copy', sel: '.share-btn.copy, .copy' },
       ];
 
-      const out: { theme: string; name: string; ratio: number }[] = [];
+      const out: {
+        theme: string;
+        name: string;
+        ratio: number;
+        fg: string;
+        bg: string;
+        alpha: number;
+      }[] = [];
       for (const theme of ['light', 'dark']) {
         document.documentElement.setAttribute('data-theme', theme);
         for (const t of targets) {
           const el = document.querySelector(t.sel) as HTMLElement | null;
           if (!el) continue;
           const cs = getComputedStyle(el);
-          out.push({ theme, name: t.name, ratio: ratio(cs.color, cs.backgroundColor) });
+          const comps = (cs.backgroundColor.match(/[\d.]+/g) ?? []).map(Number);
+          out.push({
+            theme,
+            name: t.name,
+            ratio: ratio(cs.color, cs.backgroundColor),
+            fg: cs.color,
+            bg: cs.backgroundColor,
+            alpha: comps.length >= 4 ? comps[3] : 1,
+          });
         }
       }
+      freeze.remove();
       return out;
     });
 
-    expect(results.length).toBeGreaterThanOrEqual(6);
+    expect(results.length).toBe(6);
     for (const r of results) {
-      expect(r.ratio, `${r.name} in ${r.theme} mode`).toBeGreaterThanOrEqual(4.5);
+      // A see-through background would make the ratio meaningless, so fail loudly.
+      expect(r.alpha, `${r.name} in ${r.theme} mode has no solid background`).toBe(1);
+      expect(
+        r.ratio,
+        `${r.name} in ${r.theme} mode: ${r.fg} on ${r.bg}`
+      ).toBeGreaterThanOrEqual(4.5);
     }
   });
 });
