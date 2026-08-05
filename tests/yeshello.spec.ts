@@ -518,6 +518,33 @@ test.describe('YesHello.lol - PWA', () => {
   });
 });
 
+test.describe('YesHello.lol - Cache Busting', () => {
+  // style.css and script.js are served with max-age=86400 while index.html is
+  // only cached for 30s, so an unversioned reference makes a deploy publish new
+  // HTML against a day-old asset. This happened in production: the CDN kept
+  // serving the previous stylesheet after the page itself had updated.
+  for (const [page, assets] of [
+    ['/', ['style.css', 'script.js']],
+    ['/404.html', ['error.css']],
+  ] as const) {
+    test(`${page} references its assets with a content hash`, async ({ request }) => {
+      const html = await (await request.get(page)).text();
+      const refs = [
+        ...html.matchAll(/(?:href|src)="((?!https?:|\/\/)[^"]+\.(?:css|js)(?:\?[^"]*)?)"/gi),
+      ].map((m) => m[1]);
+      expect(refs.length, `expected local asset refs in ${page}`).toBe(assets.length);
+
+      for (const ref of refs) {
+        expect(ref, 'asset must carry a ?v= hash').toMatch(/\?v=[a-f0-9]{8}$/);
+        // The hash is only useful if the versioned URL still resolves.
+        const res = await request.get(ref.startsWith('/') ? ref : `/${ref}`);
+        expect(res.status(), `${ref} should resolve`).toBe(200);
+      }
+      expect(assets.every((a) => refs.some((r) => r.includes(a)))).toBe(true);
+    });
+  }
+});
+
 test.describe('YesHello.lol - 404 Page', () => {
   test('should show custom 404 page with proper content', async ({ page }) => {
     const response = await page.goto('/this-page-does-not-exist-12345');

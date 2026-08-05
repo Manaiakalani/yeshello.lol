@@ -35,3 +35,8 @@ jobs:
 
       - name: Lint JavaScript
         run: npx eslint "*.js"
+
+      # Fails if style.css/script.js changed without re-running `npm run stamp`,
+      # which would deploy new HTML pointing at a stale, still-cached asset.
+      - name: Check asset cache-busting stamps are current
+        run: node scripts/stamp-assets.mjs --check
