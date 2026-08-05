@@ -37,10 +37,11 @@ export function isStamped(url) {
  *
  * A factory, because a /g regex carries lastIndex between uses.
  */
-export const ATTR = () => /(?<![-\w:])(href|src|srcset|poster)\s*=\s*(["'])(.*?)\2/gis;
+export const ATTR = () =>
+  /(?<![-\w:])(href|src|srcset|imagesrcset|poster)\s*=\s*(["'])(.*?)\2/gis;
 
 /** The attributes whose value is a candidate list rather than a single URL. */
-export const LIST_VALUED = /^srcset$/i;
+export const LIST_VALUED = /^(?:image)?srcset$/i;
 
 /**
  * A reference-bearing attribute with an unquoted value. Legal HTML, and the
@@ -48,7 +49,8 @@ export const LIST_VALUED = /^srcset$/i;
  * ship unstamped in silence. Blocking is right: adding quotes is an obvious
  * in-repo remedy, unlike the alternative of a second rewrite path.
  */
-export const UNQUOTED = () => /(?<![-\w:])(?:href|src|srcset|poster)\s*=\s*[^\s"'=<>`]+/gi;
+export const UNQUOTED = () =>
+  /(?<![-\w:])(?:href|src|srcset|imagesrcset|poster)\s*=\s*[^\s"'=<>`]+/gi;
 
 /**
  * Splits a srcset value the way the HTML parser does.

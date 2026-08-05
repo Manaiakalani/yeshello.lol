@@ -42,9 +42,18 @@ import {
 
 const ROOT = resolve(join(dirname(fileURLToPath(import.meta.url)), '..'));
 const MANIFEST = 'manifest.json';
-// Discovered, not listed: a hard-coded page list means a new HTML file is
-// neither stamped nor audited and the gate still exits 0.
-const PAGES = readdirSync(ROOT).filter((f) => f.endsWith('.html'));
+
+// Discovered, not listed, and recursively: a hard-coded page list means a new
+// HTML file is neither stamped nor audited while the gate still exits 0.
+const SKIP = new Set(['node_modules', '.git', 'test-results', 'playwright-report']);
+function pagesIn(dir, prefix = '') {
+  return readdirSync(join(ROOT, dir), { withFileTypes: true }).flatMap((e) => {
+    const rel = prefix ? `${prefix}/${e.name}` : e.name;
+    if (e.isDirectory()) return SKIP.has(e.name) || e.name.startsWith('.') ? [] : pagesIn(rel, rel);
+    return e.name.endsWith('.html') ? [rel] : [];
+  });
+}
+const PAGES = pagesIn('.');
 const check = process.argv.includes('--check');
 
 // Text is hashed with newlines normalised: git stores LF but checks out CRLF on
@@ -78,7 +87,21 @@ function hashOf(asset) {
   return hashes.get(asset);
 }
 
-const local = (ref) => parts(ref).path.replace(/^\.?\//, '');
+// A reference resolves against the page that carries it, not the site root, so
+// a page in a subdirectory hashes the file the browser would actually fetch.
+// Getting this wrong would turn every relative ref on such a page into a
+// "missing asset" block with no in-repo workaround.
+function local(ref, page) {
+  const path = parts(ref).path;
+  const base = path.startsWith('/') ? '' : page.slice(0, page.lastIndexOf('/') + 1);
+  const segs = [];
+  for (const s of `${base}${path}`.split('/')) {
+    if (!s || s === '.') continue;
+    if (s === '..') segs.pop();
+    else segs.push(s);
+  }
+  return segs.join('/');
+}
 
 function update(name, next) {
   const file = join(ROOT, name);
@@ -95,7 +118,7 @@ function stampOne(url, where) {
   if (EXTERNAL.test(url)) return url;
   const { path, query, frag } = parts(url);
   if (!STAMPABLE.test(path)) return url;
-  const hash = hashOf(local(path));
+  const hash = hashOf(local(path, where));
   if (!hash) {
     // A reference to a file that isn't there is a broken link, and since this
     // gates the deploy it must block rather than warn.
