@@ -183,6 +183,87 @@ test.describe('YesHello.lol - Colour Contrast', () => {
       ).toBeGreaterThanOrEqual(4.5);
     }
   });
+
+  // The <h1> cycles through @keyframes color-change, so a single computed-style
+  // snapshot only samples one instant. Assert every declared stop instead.
+  test('animated h1 stays legible at every keyframe stop', async ({ page }) => {
+    await page.goto('/');
+
+    const samples = await page.evaluate(() => {
+      // Card backgrounds transition too, so freeze before sampling (see above).
+      const freeze = document.createElement('style');
+      freeze.textContent = '*, *::before, *::after { transition: none !important; animation: none !important; }';
+      document.head.appendChild(freeze);
+
+      function ch(v: number) {
+        const s = v / 255;
+        return s <= 0.03928 ? s / 12.92 : Math.pow((s + 0.055) / 1.055, 2.4);
+      }
+      const lum = (c: number[]) => 0.2126 * ch(c[0]) + 0.7152 * ch(c[1]) + 0.0722 * ch(c[2]);
+      const parse = (c: string) => (c.match(/\d+(\.\d+)?/g) ?? []).slice(0, 3).map(Number);
+      const ratio = (fg: string, bg: string) => {
+        const [a, b] = [lum(parse(fg)), lum(parse(bg))].sort((x, y) => y - x);
+        return (a + 0.05) / (b + 0.05);
+      };
+
+      // Pull the declared colour of each keyframe stop out of the stylesheet.
+      const stops: string[] = [];
+      for (const sheet of Array.from(document.styleSheets)) {
+        let rules: CSSRule[];
+        try {
+          rules = Array.from(sheet.cssRules);
+        } catch {
+          continue; // cross-origin sheet
+        }
+        for (const rule of rules) {
+          if (rule instanceof CSSKeyframesRule && rule.name === 'color-change') {
+            for (const kf of Array.from(rule.cssRules) as CSSKeyframeRule[]) {
+              const c = kf.style.getPropertyValue('color').trim();
+              if (c) stops.push(c);
+            }
+          }
+        }
+      }
+
+      const title = document.querySelector('.main-title') as HTMLElement;
+      // Resolve declared values (literals *and* var()) by letting the engine do it.
+      const probe = document.createElement('span');
+      title.appendChild(probe);
+
+      const out: { theme: string; declared: string; resolved: string; bg: string; ratio: number }[] = [];
+      for (const theme of ['light', 'dark']) {
+        document.documentElement.setAttribute('data-theme', theme);
+        let node: HTMLElement | null = title.parentElement;
+        let bg = 'rgb(255, 255, 255)';
+        while (node) {
+          const c = getComputedStyle(node).backgroundColor;
+          if (c && c !== 'rgba(0, 0, 0, 0)') {
+            bg = c;
+            break;
+          }
+          node = node.parentElement;
+        }
+        for (const declared of stops) {
+          probe.style.color = declared;
+          const resolved = getComputedStyle(probe).color;
+          out.push({ theme, declared, resolved, bg, ratio: ratio(resolved, bg) });
+        }
+      }
+      probe.remove();
+      freeze.remove();
+      return out;
+    });
+
+    // 3 stops x 2 themes; if the keyframes stop being found this drops to 0.
+    expect(samples.length).toBe(6);
+    for (const s of samples) {
+      // .main-title is 40px/700, i.e. WCAG "large text", so the threshold is 3:1.
+      expect(
+        s.ratio,
+        `${s.theme} mode stop ${s.declared} -> ${s.resolved} on ${s.bg}`
+      ).toBeGreaterThanOrEqual(3);
+    }
+  });
 });
 
 test.describe('YesHello.lol - Slang Glossary', () => {

@@ -35,6 +35,10 @@ html {
      white passes on the dark light-mode orange (5.01:1) but only reaches
      2.14:1 on the bright dark-mode #f90, so dark mode uses near-black. */
   --on-primary: #fff;
+
+  /* Third stop of the .main-title colour cycle. The old literal #ff7518 only
+     reached 2.69:1 on the white card, below the 3:1 large-text minimum. */
+  --primary-alt: #ba5421;
   --text-color: #333;
   --text-muted: #666;
   --bg-color: #f8f8f8;
@@ -72,6 +76,9 @@ html {
   --primary-color: #f90;
   --primary-hover: #e68a00;
   --on-primary: #121212;
+
+  /* #ff7518 is fine against the dark card (6.20:1), so keep it here. */
+  --primary-alt: #ff7518;
   --text-color: #e0e0e0;
   --text-muted: #aaa;
   --bg-color: #121212;
@@ -184,7 +191,7 @@ body {
 @keyframes color-change {
   0% { color: var(--primary-color); }
   50% { color: var(--primary-hover); }
-  100% { color: #ff7518; }
+  100% { color: var(--primary-alt); }
 }
 
 @keyframes bounce {
