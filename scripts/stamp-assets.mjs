@@ -54,6 +54,7 @@ function hashOf(asset) {
 
 const local = (ref) => ref.replace(/^\.?\//, '').split('?')[0];
 const stale = [];
+const gone = [];
 
 function update(name, next) {
   const file = join(ROOT, name);
@@ -66,10 +67,38 @@ function stamp(text, pattern, where) {
   return text.replace(pattern, (match, open, ref, close) => {
     const hash = hashOf(local(ref));
     if (!hash) {
-      console.warn(`  ! ${where}: ${ref} not found on disk, left as-is`);
+      // A reference to a file that isn't there is a broken link, and since this
+      // gates the deploy it must block rather than warn.
+      gone.push(`${where}: ${ref}`);
       return match;
     }
     return `${open}${ref}?v=${hash}${close}`;
+  });
+}
+
+const STAMPABLE = /\.(?:css|js|json|webmanifest|ico|png|svg|webp|jpe?g|gif|avif)$/i;
+const EXTERNAL = /^(?:https?:|data:|\/\/|#|mailto:|\/cdn-cgi\/)/i;
+
+// srcset holds a comma-separated candidate list, each "url [descriptor]", so it
+// cannot be stamped by a single-URL pattern. Retina markup would otherwise be
+// unstampable and, thanks to the audit below, an outright deploy blocker.
+function stampSrcset(text, where) {
+  return text.replace(/(srcset=")([^"]*)(")/gi, (match, open, value, close) => {
+    const next = value
+      .split(',')
+      .map((candidate) => {
+        const parts = candidate.trim().split(/\s+/);
+        const url = parts[0];
+        if (!url || EXTERNAL.test(url) || !STAMPABLE.test(url.split('?')[0])) return candidate.trim();
+        const hash = hashOf(local(url));
+        if (!hash) {
+          gone.push(`${where}: ${url}`);
+          return candidate.trim();
+        }
+        return [`${url.split('?')[0]}?v=${hash}`, ...parts.slice(1)].join(' ');
+      })
+      .join(', ');
+    return `${open}${next}${close}`;
   });
 }
 
@@ -84,34 +113,39 @@ if (existsSync(join(ROOT, MANIFEST))) {
 // 2. Asset URLs in the HTML. Only local files with a fixed name that we deploy;
 //    absolute URLs and data: URIs keep their own caching.
 const REF =
-  /((?:href|src|srcset)=")((?!https?:|data:|\/\/)[^"?,\s]+\.(?:css|js|json|webmanifest|ico|png|svg|webp|jpe?g|gif|avif))(?:\?v=[^"]*)?(")/gi;
-
-for (const page of PAGES) {
-  if (!existsSync(join(ROOT, page))) continue;
-  update(page, stamp(readFileSync(join(ROOT, page), 'utf8'), REF, page));
-}
+  /((?:href|src)=")((?!https?:|data:|\/\/|\/cdn-cgi\/)[^"?\s]+\.(?:css|js|json|webmanifest|ico|png|svg|webp|jpe?g|gif|avif))(?:\?v=[^"]*)?(")/gi;
 
 // 3. Safety net. An unstamped local asset silently falls back to the long
 //    immutable cache rule - srcset was missed exactly that way - so a reference
 //    the patterns above do not reach must fail loudly rather than ship.
-const ATTR = /(?:href|src|srcset)="((?!https?:|data:|\/\/|#|mailto:)[^"]+)"/gi;
-const ASSET = /\.(?:css|js|json|webmanifest|ico|png|svg|webp|jpe?g|gif|avif)$/i;
+const ATTR = /(?:href|src|srcset)="([^"]+)"/gi;
 const missed = [];
 
 for (const page of PAGES) {
   if (!existsSync(join(ROOT, page))) continue;
-  const text = readFileSync(join(ROOT, page), 'utf8');
-  for (const [, value] of text.matchAll(ATTR)) {
-    // A srcset may hold several candidates, each "url descriptor".
+  const stamped = stampSrcset(stamp(readFileSync(join(ROOT, page), 'utf8'), REF, page), page);
+  update(page, stamped);
+
+  // Audit the text we just produced, not the file on disk: under --check
+  // nothing was written, so re-reading would flag ordinary staleness as an
+  // unreachable reference and send you hunting the wrong bug.
+  for (const [, value] of stamped.matchAll(ATTR)) {
     for (const candidate of value.split(',')) {
       const url = candidate.trim().split(/\s+/)[0];
-      if (!url || url.includes('?v=')) continue;
-      if (ASSET.test(url.split('?')[0])) missed.push(`${page}: ${url}`);
+      if (!url || url.includes('?v=') || EXTERNAL.test(url)) continue;
+      if (STAMPABLE.test(url.split('?')[0])) missed.push(`${page}: ${url}`);
     }
   }
 }
 
 for (const [asset, hash] of [...hashes].sort()) console.log(`    ${asset} -> ?v=${hash}`);
+
+if (gone.length) {
+  console.error('\nReferenced assets are missing from disk:');
+  for (const g of gone) console.error(`  - ${g}`);
+  console.error('These would deploy as broken links.');
+  process.exit(1);
+}
 
 if (missed.length) {
   console.error('\nLocal asset references left unstamped:');

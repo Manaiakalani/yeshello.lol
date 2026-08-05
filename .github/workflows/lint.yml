@@ -27,16 +27,19 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      # Run through the package scripts so CI and local stay in step - inlining
+      # the commands here is how scripts/*.mjs went unlinted after package.json
+      # had already been fixed to cover it.
       - name: Lint HTML
-        run: npx htmlhint "*.html"
+        run: npm run lint:html
 
       - name: Lint CSS
-        run: npx stylelint "*.css"
+        run: npm run lint:css
 
       - name: Lint JavaScript
-        run: npx eslint "*.js"
+        run: npm run lint:js
 
       # Fails if style.css/script.js changed without re-running `npm run stamp`,
       # which would deploy new HTML pointing at a stale, still-cached asset.
       - name: Check asset cache-busting stamps are current
-        run: node scripts/stamp-assets.mjs --check
+        run: npm run lint:assets

@@ -1,4 +1,4 @@
-import { test, expect, type APIRequestContext } from '@playwright/test';
+import { test, expect, type Page } from '@playwright/test';
 
 /**
  * Cloudflare fronts production and injects two scripts into the HTML at the
@@ -13,21 +13,25 @@ import { test, expect, type APIRequestContext } from '@playwright/test';
  * dashboard, not to weaken the policy.
  *
  * So attribute those two and only those two, and keep failing on anything we
- * actually serve. The inline case is confirmed against the delivered HTML: it
- * is excused only while every executable inline script on the page is
- * Cloudflare's. The moment we add one of our own, this fails again.
+ * actually serve. The inline case is confirmed against the DOM the CSP was
+ * applied to - CSP blocks execution, not parsing, so a blocked inline script is
+ * still in the document. Reading it back from a second HTTP request would be
+ * unsound: Cloudflare can answer a bare API client with a bot challenge, whose
+ * only inline script is Cloudflare's, which would excuse every real violation
+ * on the page we actually loaded.
+ *
+ * The exemption applies only while every executable inline script in the
+ * document is Cloudflare's, so adding one of our own lapses it for the page.
  */
-async function ours(messages: string[], request: APIRequestContext): Promise<string[]> {
-  const suspects = messages.filter((m) => /content security policy/i.test(m));
-  if (!suspects.length) return messages;
+async function ours(messages: string[], page: Page): Promise<string[]> {
+  if (!messages.some((m) => /content security policy/i.test(m))) return messages;
 
-  const html = await (await request.get('/')).text();
-  const inlineScripts = [
-    ...html.matchAll(/<script(?![^>]*\ssrc=)([^>]*)>([\s\S]*?)<\/script>/gi),
-  ]
-    // JSON-LD is data, not script: the CSP never evaluates it.
-    .filter(([, attrs]) => !/type\s*=\s*"application\/(ld\+json|json)"/i.test(attrs))
-    .map(([, , body]) => body);
+  const inlineScripts = await page.$$eval('script:not([src])', (els) =>
+    els
+      // JSON-LD is data, not script: the CSP never evaluates it.
+      .filter((e) => !/^application\/(ld\+)?json$/i.test((e as HTMLScriptElement).type))
+      .map((e) => e.textContent ?? ''),
+  );
 
   const allInlineIsCloudflare =
     inlineScripts.length > 0 &&
@@ -60,7 +64,7 @@ test.describe('YesHello.lol - Page Load & Structure', () => {
     await expect(metaDescription).toHaveAttribute('content', /.+/);
   });
 
-  test('should load without console errors', async ({ page, request }) => {
+  test('should load without console errors', async ({ page }) => {
     const errors: string[] = [];
     page.on('console', (msg) => {
       if (msg.type() === 'error') {
@@ -72,13 +76,13 @@ test.describe('YesHello.lol - Page Load & Structure', () => {
     page.on('pageerror', (err) => errors.push(`pageerror: ${err.message}`));
     await page.goto('/');
     await page.waitForLoadState('networkidle');
-    expect(await ours(errors, request)).toHaveLength(0);
+    expect(await ours(errors, page)).toHaveLength(0);
   });
 
   // Regression guard: the stylesheet used to rely on an inline
   // onload="this.media='all'" handler, which our CSP blocks, so fonts silently
   // never loaded in production.
-  test('should not rely on inline handlers blocked by CSP', async ({ page, request }) => {
+  test('should not rely on inline handlers blocked by CSP', async ({ page }) => {
     const violations: string[] = [];
     page.on('console', (msg) => {
       const text = msg.text();
@@ -88,7 +92,7 @@ test.describe('YesHello.lol - Page Load & Structure', () => {
     });
     await page.goto('/');
     await page.waitForLoadState('networkidle');
-    const mine = await ours(violations, request);
+    const mine = await ours(violations, page);
     expect(mine, `CSP violations: ${mine.join(' | ')}`).toHaveLength(0);
 
     const printOnly = await page.locator('link[rel="stylesheet"][media="print"]').count();
@@ -96,8 +100,13 @@ test.describe('YesHello.lol - Page Load & Structure', () => {
 
     // The two assertions above still pass if the font link is deleted outright,
     // so check the markup the CSP would block and that the fonts really arrive.
-    const html = await (await request.get('/')).text();
-    const inlineHandlers = [...html.matchAll(/\son[a-z]+\s*=\s*"/gi)].map((m) => m[0].trim());
+    // Read it from the loaded document rather than a second request, which
+    // Cloudflare may answer with a challenge page that passes vacuously.
+    const inlineHandlers = await page.evaluate(() =>
+      [...document.querySelectorAll('*')].flatMap((el) =>
+        [...el.attributes].filter((a) => /^on[a-z]+$/i.test(a.name)).map((a) => `${el.tagName.toLowerCase()}[${a.name}]`),
+      ),
+    );
     expect(inlineHandlers, `inline handlers are blocked by our CSP`).toEqual([]);
 
     const fontLink = page.locator('link[rel="stylesheet"][href*="fonts.googleapis.com"]');
@@ -648,8 +657,11 @@ test.describe('YesHello.lol - Cache Busting', () => {
       const html = await (await request.get(page)).text();
       // Covers srcset too: the <source> WebP is what most browsers actually
       // fetch, and it sits under the 30-day immutable /images/* rule.
+      // /cdn-cgi/ is Cloudflare's own edge-injected path, not ours to stamp.
       const refs = [
-        ...html.matchAll(/(?:href|src|srcset)="((?!https?:|data:|\/\/|#|mailto:)[^"]+)"/gi),
+        ...html.matchAll(
+          /(?:href|src|srcset)="((?!https?:|data:|\/\/|#|mailto:|\/cdn-cgi\/)[^"]+)"/gi,
+        ),
       ]
         .flatMap((m) => m[1].split(','))
         .map((c) => c.trim().split(/\s+/)[0])
