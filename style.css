@@ -91,10 +91,17 @@ html {
   --bad-msg-bg: rgb(255, 77, 79, 0.2);
   --msg-bubble-bg: #2a2a2a;
   --footer-border: #333;
-  --footer-text: #999;
+
+  /* #aaa not #999: the footer contains a .term, and the purple highlight
+     composited over the dark background left #999 at 4.48:1, just under AA. */
+  --footer-text: #aaa;
   --section-title-color: #ccc;
   --bad-tag-bg: rgb(255, 77, 79, 0.3);
-  --bad-tag-color: #ffb0b0;
+
+  /* Lightened from #ffb0b0: a .term inside .bad-hello-tag composites the purple
+     highlight over this translucent red, and the old pink only reached 3.53:1
+     at the pulse peak. */
+  --bad-tag-color: #ffd6d6;
   --toast-bg: #e0e0e0;
   --toast-color: #121212;
   --flyout-border: #444;
@@ -325,7 +332,12 @@ strong, .term {
   font-weight: 600;
   font-size: inherit;
   cursor: help;
-  color: var(--genz-accent);
+
+  /* Inherit rather than use --genz-accent: the accent is the same hue as the
+     --term-highlight background, so foreground and background moved together
+     and every .term sat at 1.5-3.8:1 in both themes. The highlight alone is a
+     sufficient affordance and inheriting clears AA with room to spare. */
+  color: inherit;
   transition: background-color 0.2s ease;
   display: inline;
 }

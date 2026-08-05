@@ -132,9 +132,28 @@ test.describe('YesHello.lol - Colour Contrast', () => {
         const s = v / 255;
         return s <= 0.03928 ? s / 12.92 : Math.pow((s + 0.055) / 1.055, 2.4);
       }
-      const parse = (c: string) => (c.match(/\d+(\.\d+)?/g) ?? []).slice(0, 3).map(Number);
-      const ratio = (fg: string, bg: string) => {
-        const [a, b] = [lum(parse(fg)), lum(parse(bg))].sort((x, y) => y - x);
+      const parse = (c: string) => (c.match(/[\d.]+/g) ?? []).map(Number);
+      const overlay = (fg: number[], bg: number[]) => {
+        const a = fg[3] ?? 1;
+        return [0, 1, 2].map((i) => fg[i] * a + bg[i] * (1 - a));
+      };
+      // .term backgrounds are translucent and can stack (a term inside
+      // .bad-hello-tag composites purple over red), so flatten the ancestor
+      // chain instead of reading one possibly see-through layer.
+      const effectiveBg = (el: HTMLElement) => {
+        const stack: number[][] = [];
+        let node: HTMLElement | null = el;
+        while (node) {
+          const c = parse(getComputedStyle(node).backgroundColor);
+          if (c.length && (c[3] ?? 1) > 0) stack.push(c);
+          node = node.parentElement;
+        }
+        let base = [255, 255, 255];
+        for (let i = stack.length - 1; i >= 0; i--) base = overlay(stack[i], base);
+        return base;
+      };
+      const ratio = (fg: number[], bg: number[]) => {
+        const [a, b] = [lum(fg), lum(bg)].sort((x, y) => y - x);
         return (a + 0.05) / (b + 0.05);
       };
 
@@ -142,44 +161,55 @@ test.describe('YesHello.lol - Colour Contrast', () => {
         { name: 'skip-link', sel: '.skip-link' },
         { name: 'close-flyout', sel: '#close-flyout' },
         { name: 'share-copy', sel: '.share-btn.copy, .copy' },
+        { name: 'inline-term', sel: 'p .term' },
+        { name: 'glossary-term', sel: '#slang-flyout .term' },
+        { name: 'bad-tag-term', sel: '.bad-hello-tag .term' },
       ];
 
       const out: {
         theme: string;
         name: string;
+        state: string;
         ratio: number;
         fg: string;
         bg: string;
-        alpha: number;
       }[] = [];
       for (const theme of ['light', 'dark']) {
         document.documentElement.setAttribute('data-theme', theme);
         for (const t of targets) {
           const el = document.querySelector(t.sel) as HTMLElement | null;
           if (!el) continue;
-          const cs = getComputedStyle(el);
-          const comps = (cs.backgroundColor.match(/[\d.]+/g) ?? []).map(Number);
-          out.push({
-            theme,
-            name: t.name,
-            ratio: ratio(cs.color, cs.backgroundColor),
-            fg: cs.color,
-            bg: cs.backgroundColor,
-            alpha: comps.length >= 4 ? comps[3] : 1,
-          });
+          const fg = parse(getComputedStyle(el).color);
+          const original = el.style.backgroundColor;
+          // rest, plus the :hover and pulse-highlight peak alphas for terms.
+          const states: [string, string | null][] = t.name.includes('term')
+            ? [['rest', null], ['hover', 'rgba(157, 78, 221, 0.25)'], ['pulse', 'rgba(157, 78, 221, 0.5)']]
+            : [['rest', null]];
+          for (const [state, override] of states) {
+            if (override) el.style.backgroundColor = override;
+            const bg = effectiveBg(el);
+            out.push({
+              theme,
+              name: t.name,
+              state,
+              ratio: ratio(fg, bg),
+              fg: getComputedStyle(el).color,
+              bg: `rgb(${bg.map(Math.round).join(', ')})`,
+            });
+            el.style.backgroundColor = original;
+          }
         }
       }
       freeze.remove();
       return out;
     });
 
-    expect(results.length).toBe(6);
+    // 3 buttons (rest only) + 3 term variants x 3 states, across 2 themes.
+    expect(results.length).toBe(24);
     for (const r of results) {
-      // A see-through background would make the ratio meaningless, so fail loudly.
-      expect(r.alpha, `${r.name} in ${r.theme} mode has no solid background`).toBe(1);
       expect(
         r.ratio,
-        `${r.name} in ${r.theme} mode: ${r.fg} on ${r.bg}`
+        `${r.name} (${r.state}) in ${r.theme} mode: ${r.fg} on ${r.bg}`
       ).toBeGreaterThanOrEqual(4.5);
     }
   });
