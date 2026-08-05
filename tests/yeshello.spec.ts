@@ -671,7 +671,7 @@ test.describe('YesHello.lol - Cache Busting', () => {
       );
 
       for (const ref of refs) {
-        expect(ref, 'asset must carry a ?v= hash').toMatch(/\?v=[a-f0-9]{8}$/);
+        expect(ref, 'asset must carry a ?v= hash').toMatch(/[?&]v=[a-f0-9]{8}$/);
         // The hash is only useful if the versioned URL still resolves.
         const res = await request.get(ref.startsWith('/') ? ref : `/${ref}`);
         expect(res.status(), `${ref} should resolve`).toBe(200);
