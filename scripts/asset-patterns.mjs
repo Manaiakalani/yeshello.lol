@@ -30,18 +30,67 @@ export function isStamped(url) {
 }
 
 /**
- * Splits an attribute value into the URLs it references.
+ * Every place a reference can live. Kept here so the stamper, the audit and the
+ * spec cannot disagree about where to look - `poster` and single-quoted
+ * attributes were both invisible to all three at once, which is the silent half
+ * of this bug class: unstamped and unflagged, under a 30-day immutable rule.
  *
- * srcset is a comma-separated list of "url [descriptor]"; every other attribute
- * holds a single URL whose query may legitimately contain a comma. Getting this
- * wrong breaks both ways, and both were live: splitting a plain href on commas
- * hard-blocked the deploy on `style.css?a=1,2`, while splitting srcset on
- * whitespace alone let `images/x.webp,data:image/gif;base64,...` hide a real
- * asset inside one token. Splitting on either separator is what surfaces it.
+ * A factory, because a /g regex carries lastIndex between uses.
+ */
+export const ATTR = () => /(href|src|srcset|poster)\s*=\s*(["'])(.*?)\2/gis;
+
+/**
+ * Splits a srcset value the way the HTML parser does.
+ *
+ * A URL is a run of non-whitespace characters; a comma only ends a candidate
+ * when it trails the URL or a descriptor. Splitting on every comma instead
+ * silently corrupted `images/x.webp?a=1,2 2x` into two bogus candidates - and
+ * because the audit split identically, it agreed and let the mangled markup
+ * ship. Confirmed against Chromium: it requests `/images/x.webp?a=1,2` whole.
+ */
+export function srcsetCandidates(value) {
+  const out = [];
+  let cur = null;
+  for (const token of value.split(/\s+/)) {
+    if (!token) continue;
+    const ends = token.endsWith(',');
+    const bare = token.replace(/,+$/, '');
+    if (!cur) {
+      if (bare) cur = { url: bare, desc: [] };
+    } else if (bare) {
+      cur.desc.push(bare);
+    }
+    if (ends && cur) {
+      out.push(cur);
+      cur = null;
+    }
+  }
+  if (cur) out.push(cur);
+  return out;
+}
+
+/** Rebuilds a srcset value from the candidate list above. */
+export const srcsetText = (list) => list.map((c) => [c.url, ...c.desc].join(' ')).join(', ');
+
+/**
+ * The URLs an attribute value resolves to, exactly as the browser would fetch
+ * them. srcset carries a candidate list; every other attribute holds a single
+ * URL whose query may legitimately contain a comma.
  */
 export function candidates(value, srcset) {
-  const raw = srcset ? value.split(/[\s,]+/) : [value];
-  return raw.map((c) => c.trim()).filter(Boolean);
+  return srcset ? srcsetCandidates(value).map((c) => c.url) : [value.trim()].filter(Boolean);
+}
+
+/**
+ * True when a reference is not stampable yet still looks like it was meant to
+ * point at a stampable asset - a stampable extension buried mid-URL rather than
+ * ending it. `a.webp,data:image/gif;base64,X` is one such: the browser requests
+ * that whole string and 404s. Without this the malformed candidate is skipped
+ * in silence, which is the failure mode this gate exists to prevent.
+ */
+export function malformed(url) {
+  const { path } = parts(url);
+  return !STAMPABLE.test(path) && new RegExp(`\\.(?:${EXT})[^/]`, 'i').test(path);
 }
 
 /** Splits a reference into its path, query and fragment. */

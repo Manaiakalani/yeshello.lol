@@ -1,5 +1,12 @@
 import { test, expect, type Page } from '@playwright/test';
-import { EXTERNAL, STAMPABLE, candidates, isStamped, parts } from '../scripts/asset-patterns.mjs';
+import {
+  ATTR,
+  EXTERNAL,
+  STAMPABLE,
+  candidates,
+  isStamped,
+  parts,
+} from '../scripts/asset-patterns.mjs';
 
 /**
  * Cloudflare fronts production and injects two scripts into the HTML at the
@@ -660,8 +667,8 @@ test.describe('YesHello.lol - Cache Busting', () => {
       // fetch, and it sits under the 30-day immutable /images/* rule.
       // The patterns come from the stamper's own module: a fourth hand-copy of
       // this list is exactly the drift that let srcset, and later .mjs, slip.
-      const refs = [...html.matchAll(/(href|src|srcset)="([^"]*)"/gi)]
-        .flatMap((m) => candidates(m[2], m[1].toLowerCase() === 'srcset'))
+      const refs = [...html.matchAll(ATTR())]
+        .flatMap((m) => candidates(m[3], /^srcset$/i.test(m[1])))
         .filter((u) => !EXTERNAL.test(u) && STAMPABLE.test(parts(u).path));
       expect(refs.length, `expected local asset refs in ${page}`).toBeGreaterThanOrEqual(
         assets.length,
