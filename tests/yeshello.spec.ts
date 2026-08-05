@@ -1,4 +1,45 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, type APIRequestContext } from '@playwright/test';
+
+/**
+ * Cloudflare fronts production and injects two scripts into the HTML at the
+ * edge: the Web Analytics beacon, and the Bot Management challenge bootstrap
+ * (an inline script carrying a per-request token). Our CSP blocks both.
+ *
+ * Neither is fixable from this repo. The beacon's origin could be allow-listed,
+ * but the inline bootstrap embeds a fresh token per request, so its hash is
+ * never stable and no nonce can be issued from static hosting - only
+ * 'unsafe-inline' would admit it, which is exactly the hole that let the
+ * original font bug ship. The fix is to turn these off in the Cloudflare
+ * dashboard, not to weaken the policy.
+ *
+ * So attribute those two and only those two, and keep failing on anything we
+ * actually serve. The inline case is confirmed against the delivered HTML: it
+ * is excused only while every executable inline script on the page is
+ * Cloudflare's. The moment we add one of our own, this fails again.
+ */
+async function ours(messages: string[], request: APIRequestContext): Promise<string[]> {
+  const suspects = messages.filter((m) => /content security policy/i.test(m));
+  if (!suspects.length) return messages;
+
+  const html = await (await request.get('/')).text();
+  const inlineScripts = [
+    ...html.matchAll(/<script(?![^>]*\ssrc=)([^>]*)>([\s\S]*?)<\/script>/gi),
+  ]
+    // JSON-LD is data, not script: the CSP never evaluates it.
+    .filter(([, attrs]) => !/type\s*=\s*"application\/(ld\+json|json)"/i.test(attrs))
+    .map(([, , body]) => body);
+
+  const allInlineIsCloudflare =
+    inlineScripts.length > 0 &&
+    inlineScripts.every((s) => /__CF\$cv\$params|cdn-cgi\/challenge-platform/.test(s));
+
+  return messages.filter((m) => {
+    if (!/content security policy/i.test(m)) return true;
+    if (/cloudflareinsights\.com/.test(m)) return false;
+    if (allInlineIsCloudflare && /inline script/i.test(m)) return false;
+    return true;
+  });
+}
 
 test.describe('YesHello.lol - Page Load & Structure', () => {
   test('should load the homepage with correct title', async ({ page }) => {
@@ -19,7 +60,7 @@ test.describe('YesHello.lol - Page Load & Structure', () => {
     await expect(metaDescription).toHaveAttribute('content', /.+/);
   });
 
-  test('should load without console errors', async ({ page }) => {
+  test('should load without console errors', async ({ page, request }) => {
     const errors: string[] = [];
     page.on('console', (msg) => {
       if (msg.type() === 'error') {
@@ -31,7 +72,7 @@ test.describe('YesHello.lol - Page Load & Structure', () => {
     page.on('pageerror', (err) => errors.push(`pageerror: ${err.message}`));
     await page.goto('/');
     await page.waitForLoadState('networkidle');
-    expect(errors).toHaveLength(0);
+    expect(await ours(errors, request)).toHaveLength(0);
   });
 
   // Regression guard: the stylesheet used to rely on an inline
@@ -47,7 +88,8 @@ test.describe('YesHello.lol - Page Load & Structure', () => {
     });
     await page.goto('/');
     await page.waitForLoadState('networkidle');
-    expect(violations, `CSP violations: ${violations.join(' | ')}`).toHaveLength(0);
+    const mine = await ours(violations, request);
+    expect(mine, `CSP violations: ${mine.join(' | ')}`).toHaveLength(0);
 
     const printOnly = await page.locator('link[rel="stylesheet"][media="print"]').count();
     expect(printOnly).toBe(0);
