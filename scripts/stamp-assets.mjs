@@ -26,6 +26,7 @@ import { createHash } from 'node:crypto';
 import { readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { join, dirname, resolve, extname } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { EXT, EXTERNAL, STAMPABLE, STAMPED, parts } from './asset-patterns.mjs';
 
 const ROOT = resolve(join(dirname(fileURLToPath(import.meta.url)), '..'));
 const MANIFEST = 'manifest.json';
@@ -38,12 +39,23 @@ const check = process.argv.includes('--check');
 // hashed byte for byte.
 const TEXT = new Set(['.css', '.js', '.mjs', '.json', '.svg', '.webmanifest']);
 
+const stale = [];
+const gone = [];
+const missed = [];
+const writes = new Map();
+
 const hashes = new Map();
 function hashOf(asset) {
   if (!hashes.has(asset)) {
     const file = join(ROOT, asset);
-    if (!existsSync(file)) return null;
-    const raw = readFileSync(file);
+    // Pending rewrites have to be visible here: the manifest is hashed straight
+    // after its icons are stamped, and reading the unmodified file from disk
+    // would stamp the HTML with the manifest's pre-stamp hash. That made an
+    // icon-only change need two `npm run stamp` runs, the first --check after
+    // the correct action failing with advice the developer had just followed.
+    const pending = writes.get(file);
+    if (pending === undefined && !existsSync(file)) return null;
+    const raw = pending === undefined ? readFileSync(file) : Buffer.from(pending, 'utf8');
     const data = TEXT.has(extname(asset).toLowerCase())
       ? Buffer.from(raw.toString('utf8').replace(/\r\n/g, '\n'), 'utf8')
       : raw;
@@ -52,10 +64,7 @@ function hashOf(asset) {
   return hashes.get(asset);
 }
 
-const local = (ref) => ref.replace(/^\.?\//, '').split('?')[0];
-const stale = [];
-const gone = [];
-const writes = new Map();
+const local = (ref) => parts(ref).path.replace(/^\.?\//, '');
 
 function update(name, next) {
   const file = join(ROOT, name);
@@ -66,21 +75,15 @@ function update(name, next) {
   writes.set(file, next);
 }
 
-// One source of truth for both the stamping patterns and the audit. When these
-// drifted apart, the audit flagged references the stamper could not reach and
-// turned them into deploy blocks with no in-repo workaround - which is how
-// srcset failed. Deriving the patterns removes the possibility.
-const EXT = 'css|js|mjs|json|webmanifest|ico|png|svg|webp|jpe?g|gif|avif';
-const STAMPABLE = new RegExp(`\\.(?:${EXT})$`, 'i');
-const EXTERNAL = /^(?:https?:|data:|\/\/|#|mailto:|\/cdn-cgi\/)/i;
-const REF = new RegExp(`((?:href|src)=")([^"\\s]+\\.(?:${EXT})(?:\\?[^"\\s]*)?)(")`, 'gi');
-const STAMPED = /[?&]v=[a-f0-9]{8}(?:&|$)/;
+// One source of truth for both the stamping patterns and the audit, imported
+// from ./asset-patterns.mjs so the script and the spec cannot drift apart.
+const REF = new RegExp(`((?:href|src)=")([^"\\s]+\\.(?:${EXT})(?:[?#][^"\\s]*)?)(")`, 'gi');
 
 // Returns the URL unchanged when it is not ours to stamp, so callers can tell
 // whether anything actually happened and leave untouched markup byte-identical.
 function stampOne(url, where) {
   if (EXTERNAL.test(url)) return url;
-  const path = url.split('?')[0];
+  const { path, query, frag } = parts(url);
   if (!STAMPABLE.test(path)) return url;
   const hash = hashOf(local(path));
   if (!hash) {
@@ -90,12 +93,11 @@ function stampOne(url, where) {
     return url;
   }
   // Preserve any other query parameters rather than dropping them, so a ref
-  // carrying one is stampable instead of being an unfixable deploy block.
-  const rest = url
-    .slice(path.length + 1)
-    .split('&')
-    .filter((p) => p && !p.startsWith('v='));
-  return `${path}?${[...rest, `v=${hash}`].join('&')}`;
+  // carrying one is stampable instead of being an unfixable deploy block. The
+  // fragment is re-appended last: appending after it would put the stamp in a
+  // part the browser never sends, leaving the request unversioned.
+  const rest = query.split('&').filter((p) => p && !p.startsWith('v='));
+  return `${path}?${[...rest, `v=${hash}`].join('&')}${frag}`;
 }
 
 function stampRefs(text, where) {
@@ -111,16 +113,26 @@ function stampRefs(text, where) {
 function stampSrcset(text, where) {
   return text.replace(/(srcset=")([^"]*)(")/gi, (match, open, value, close) => {
     // A data: URI may itself contain commas, so splitting would corrupt it.
-    if (/data:/i.test(value)) return match;
+    // Bailing has to be loud: a local candidate sitting alongside one would
+    // otherwise go unstamped and unflagged, under the 30-day immutable rule.
+    if (/data:/i.test(value)) {
+      for (const candidate of value.split(/\s+/)) {
+        const url = candidate.replace(/,$/, '');
+        if (url && !EXTERNAL.test(url) && STAMPABLE.test(parts(url).path)) {
+          missed.push(`${where}: ${url} (in a srcset holding a data: URI)`);
+        }
+      }
+      return match;
+    }
     let changed = false;
     const next = value.split(',').map((candidate) => {
-      const parts = candidate.trim().split(/\s+/);
-      const url = parts[0];
+      const bits = candidate.trim().split(/\s+/);
+      const url = bits[0];
       if (!url) return candidate.trim();
       const stamped = stampOne(url, where);
       if (stamped === url) return candidate.trim();
       changed = true;
-      return [stamped, ...parts.slice(1)].join(' ');
+      return [stamped, ...bits.slice(1)].join(' ');
     });
     // Rewriting only when a candidate changed keeps this gate from reformatting
     // markup it has no reason to touch.
@@ -129,6 +141,7 @@ function stampSrcset(text, where) {
 }
 
 // 1. Icon URLs inside the manifest, so a changed icon reaches installed PWAs.
+//    stampOne skips absolute icon URLs, so no second exclusion list is needed.
 if (existsSync(join(ROOT, MANIFEST))) {
   const icons = /("src"\s*:\s*")([^"]+)(")/g;
   const text = readFileSync(join(ROOT, MANIFEST), 'utf8');
@@ -139,7 +152,7 @@ if (existsSync(join(ROOT, MANIFEST))) {
       return next === url ? match : `${open}${next}${close}`;
     }),
   );
-  // The manifest's own hash must reflect the icon stamps just written.
+  // The manifest's own hash must reflect the icon stamps just queued.
   hashes.delete(MANIFEST);
 }
 
@@ -147,7 +160,6 @@ if (existsSync(join(ROOT, MANIFEST))) {
 //    immutable cache rule - srcset was missed exactly that way - so a reference
 //    the patterns above do not reach must fail loudly rather than ship.
 const ATTR = /(?:href|src|srcset)="([^"]+)"/gi;
-const missed = [];
 
 for (const page of PAGES) {
   if (!existsSync(join(ROOT, page))) continue;
@@ -162,7 +174,7 @@ for (const page of PAGES) {
     for (const candidate of value.split(',')) {
       const url = candidate.trim().split(/\s+/)[0];
       if (!url || STAMPED.test(url) || EXTERNAL.test(url)) continue;
-      if (STAMPABLE.test(url.split('?')[0])) missed.push(`${page}: ${url}`);
+      if (STAMPABLE.test(parts(url).path)) missed.push(`${page}: ${url}`);
     }
   }
 }
