@@ -50,7 +50,7 @@ function pagesIn(dir, prefix = '') {
   return readdirSync(join(ROOT, dir), { withFileTypes: true }).flatMap((e) => {
     const rel = prefix ? `${prefix}/${e.name}` : e.name;
     if (e.isDirectory()) return SKIP.has(e.name) || e.name.startsWith('.') ? [] : pagesIn(rel, rel);
-    return e.name.endsWith('.html') ? [rel] : [];
+    return /\.x?html?$/i.test(e.name) ? [rel] : [];
   });
 }
 const PAGES = pagesIn('.');
