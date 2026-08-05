@@ -25,8 +25,11 @@ html {
 
 /* ========== 1. Variables & Base Styles ========== */
 :root {
-  --primary-color: #f90;
-  --primary-hover: #e68a00;
+  /* Accessible orange: #c24700 is 5.01:1 on #fff and 4.71:1 on #f8f8f8,
+     passing WCAG AA for normal text. The brighter #f90 is kept for dark mode
+     below, where it already passes at 8.75:1 on #121212. */
+  --primary-color: #c24700;
+  --primary-hover: #a33c00;
   --text-color: #333;
   --text-muted: #666;
   --bg-color: #f8f8f8;
@@ -44,7 +47,7 @@ html {
   --bad-msg-bg: #fff0f0;
   --msg-bubble-bg: #fff;
   --footer-border: #eee;
-  --footer-text: #777;
+  --footer-text: #666;
   --section-title-color: #444;
   --bad-tag-bg: #f8d7da;
   --bad-tag-color: #721c24;
@@ -58,6 +61,9 @@ html {
 
 /* Dark theme via data attribute (manual toggle) */
 [data-theme="dark"] {
+  /* Restore the brighter orange: 8.75:1 on #121212, comfortably AA. */
+  --primary-color: #f90;
+  --primary-hover: #e68a00;
   --text-color: #e0e0e0;
   --text-muted: #aaa;
   --bg-color: #121212;
@@ -406,11 +412,6 @@ strong, .term {
   margin-top: 5px;
   color: #ff4a4a;
   font-style: italic;
-}
-
-.good-hello-tag {
-  background: linear-gradient(45deg, var(--genz-gradient-start), var(--genz-gradient-end));
-  color: white;
 }
 
 .bad-hello-tag {

@@ -63,24 +63,46 @@ Then:
 | `script.js` | Interactive functionality |
 | `staticwebapp.config.json` | Headers, caching, and routing |
 | `404.html` | Custom 404 error page |
+| `scripts/static-server.mjs` | Local server that mirrors the Azure SWA config |
+| `scripts/generate-icons.mjs` | Regenerates the PWA icons |
 
 ## 🧪 Testing
 
-This project uses [Playwright](https://playwright.dev/) for end-to-end testing against the live site.
+This project uses [Playwright](https://playwright.dev/) for end-to-end testing.
+Tests run against the local working tree by default, so they validate the code
+you are about to ship rather than whatever is already deployed. Playwright
+starts `scripts/static-server.mjs` automatically, which applies the real
+`staticwebapp.config.json` headers (including the CSP) and 404 rewrite.
 
 ```bash
 # Install dependencies
 npm install
 
 # Install browsers
-npx playwright install --with-deps
+npx playwright install --with-deps chromium
 
-# Run tests
-npx playwright test
+# Run tests against the local working tree
+npm test
 
 # Run tests with UI
-npx playwright test --ui
+npm run test:ui
+
+# Serve the site locally on http://127.0.0.1:4280
+npm start
 ```
+
+Set `BASE_URL` to smoke-test a deployed environment instead of the local tree:
+
+```bash
+# macOS / Linux
+BASE_URL=https://yeshello.lol npx playwright test
+
+# PowerShell
+$env:BASE_URL="https://yeshello.lol"; npx playwright test
+```
+
+The PWA icons are generated rather than hand-edited. After changing the mark,
+run `npm run icons` and commit the regenerated PNGs.
 
 ## 🔄 CI/CD
 

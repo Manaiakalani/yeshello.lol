@@ -123,18 +123,23 @@
         const p = msg.querySelector('p');
         if (!p) return;
 
-        // Preserve the full innerHTML so we can restore it
-        const fullHTML = p.innerHTML;
+        // Keep references to the live child nodes. Restoring these exact nodes
+        // (rather than re-parsing innerHTML) preserves the event listeners and
+        // ARIA attributes that the .term enhancement attaches to them.
+        const originalNodes = Array.from(p.childNodes);
         const senderEl = p.querySelector('.sender');
-        const senderHTML = senderEl ? senderEl.outerHTML + ' ' : '';
         const senderText = senderEl ? senderEl.textContent : '';
 
         // Extract just the text portion after the sender
         const fullText = p.textContent;
         const bodyText = senderText ? fullText.substring(fullText.indexOf(senderText) + senderText.length).trim() : fullText;
 
-        // Clear and prepare for animation
-        p.innerHTML = senderHTML;
+        // Clear and prepare for animation. A text node is used for the body so
+        // message content is never re-interpreted as HTML.
+        const typedNode = document.createTextNode('');
+        p.replaceChildren();
+        if (senderEl) p.append(senderEl.cloneNode(true), ' ');
+        p.append(typedNode);
 
         const delay = idx === 0 ? 200 : idx * 1200;
         const charSpeed = idx === 0 ? 40 : 55;
@@ -144,11 +149,11 @@
           const interval = setInterval(function () {
             if (ci >= bodyText.length) {
               clearInterval(interval);
-              // Restore full HTML (with any .term spans, etc.) after animation
-              p.innerHTML = fullHTML;
+              // Re-attach the original nodes, listeners and all.
+              p.replaceChildren.apply(p, originalNodes);
               return;
             }
-            p.innerHTML = senderHTML + bodyText.substring(0, ++ci);
+            typedNode.data = bodyText.substring(0, ++ci);
           }, charSpeed);
         }, delay);
       });
@@ -291,6 +296,9 @@
         backdrop.setAttribute('aria-hidden', 'true');
       }
       document.body.style.overflow = '';
+      if (window.location.hash === '#slang-flyout' && window.history.replaceState) {
+        window.history.replaceState(null, '', window.location.pathname + window.location.search);
+      }
       if (els.secretEmoji) {
         els.secretEmoji.setAttribute('aria-expanded', 'false');
         els.secretEmoji.focus();
@@ -344,6 +352,13 @@
       }
       trapFocus(e);
     });
+
+    // Support the manifest shortcut (and deep links) to /#slang-flyout
+    function syncFlyoutWithHash() {
+      if (window.location.hash === '#slang-flyout') openFlyout();
+    }
+    window.addEventListener('hashchange', syncFlyoutWithHash);
+    syncFlyoutWithHash();
 
     // ── Share Buttons ─────────────────────────────────────
     if (els.twitterBtn) els.twitterBtn.addEventListener('click', shareOnX);

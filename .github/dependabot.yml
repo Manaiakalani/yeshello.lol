@@ -1,4 +1,4 @@
-# Dependabot configuration - auto-generated
+# Dependabot configuration
 # https://docs.github.com/en/code-security/dependabot/dependabot-version-updates
 version: 2
 updates:
@@ -11,3 +11,14 @@ updates:
     labels:
       - "dependencies"
       - "github-actions"
+
+  # npm security updates arrive without this block, but version updates do not.
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 10
+    labels:
+      - "dependencies"
+      - "npm"
