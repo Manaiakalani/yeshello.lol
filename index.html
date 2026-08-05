@@ -47,23 +47,18 @@
     <meta property="og:site_name" content="YesHello.lol" />
     <meta property="og:image" content="https://yeshello.lol/images/ThisIsDoge.png" />
     <meta property="og:image:alt" content="Doge meme character illustrating the Yes Hello power move" />
-    <meta property="og:image:width" content="800" />
-    <meta property="og:image:height" content="600" />
+    <meta property="og:image:width" content="1736" />
+    <meta property="og:image:height" content="1412" />
     <meta property="og:locale" content="en_US" />
 
-    <!-- Fonts -->
+    <!-- Fonts: loaded directly. The media="print"/onload swap trick cannot be
+         used here because our CSP omits 'unsafe-inline' for script-src, which
+         blocks inline event handlers and would leave this sheet at media="print"
+         forever. &display=swap already prevents invisible text while loading. -->
     <link
       href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;700&family=Poppins:wght@700&display=swap"
       rel="stylesheet"
-      media="print"
-      onload="this.media='all'"
     />
-    <noscript>
-      <link
-        href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;700&family=Poppins:wght@700&display=swap"
-        rel="stylesheet"
-      />
-    </noscript>
 
     <!-- 📈 Analytics (respectfully, for the data girlies) -->
     <script
@@ -242,8 +237,8 @@
               class="featured-image"
               loading="eager"
               fetchpriority="high"
-              width="800"
-              height="600"
+              width="1736"
+              height="1412"
             />
           </picture>
         </section>
@@ -256,6 +251,7 @@
 
           <div
             class="conversation good-hello"
+            role="region"
             aria-label="Example of good hello messages"
           >
             <div class="message">
@@ -266,6 +262,7 @@
                   alt="Doge meme character avatar"
                   class="avatar"
                   loading="lazy"
+                  decoding="async"
                   width="40"
                   height="40"
                 />
@@ -281,6 +278,7 @@
                   alt="Cat meme character avatar"
                   class="avatar"
                   loading="lazy"
+                  decoding="async"
                   width="40"
                   height="40"
                 />
@@ -299,6 +297,7 @@
                   alt="Cat meme character avatar"
                   class="avatar"
                   loading="lazy"
+                  decoding="async"
                   width="40"
                   height="40"
                 />
@@ -317,6 +316,7 @@
                   alt="Cat meme character avatar"
                   class="avatar"
                   loading="lazy"
+                  decoding="async"
                   width="40"
                   height="40"
                 />
@@ -332,6 +332,7 @@
 
           <div
             class="conversation bad-hello"
+            role="region"
             aria-label="Example of bad hello messages"
           >
             <div class="message">
@@ -342,6 +343,7 @@
                   alt="Doge meme character avatar"
                   class="avatar"
                   loading="lazy"
+                  decoding="async"
                   width="40"
                   height="40"
                 />
@@ -366,6 +368,7 @@
                   alt="Doge meme character avatar"
                   class="avatar"
                   loading="lazy"
+                  decoding="async"
                   width="40"
                   height="40"
                 />

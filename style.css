@@ -25,8 +25,20 @@ html {
 
 /* ========== 1. Variables & Base Styles ========== */
 :root {
-  --primary-color: #f90;
-  --primary-hover: #e68a00;
+  /* Accessible orange: #c24700 is 5.01:1 on #fff and 4.71:1 on #f8f8f8,
+     passing WCAG AA for normal text. The brighter #f90 is kept for dark mode
+     below, where it already passes at 8.75:1 on #121212. */
+  --primary-color: #c24700;
+  --primary-hover: #a33c00;
+
+  /* Text drawn ON TOP of --primary-color/--primary-hover. Must flip per theme:
+     white passes on the dark light-mode orange (5.01:1) but only reaches
+     2.14:1 on the bright dark-mode #f90, so dark mode uses near-black. */
+  --on-primary: #fff;
+
+  /* Third stop of the .main-title colour cycle. The old literal #ff7518 only
+     reached 2.69:1 on the white card, below the 3:1 large-text minimum. */
+  --primary-alt: #ba5421;
   --text-color: #333;
   --text-muted: #666;
   --bg-color: #f8f8f8;
@@ -44,7 +56,7 @@ html {
   --bad-msg-bg: #fff0f0;
   --msg-bubble-bg: #fff;
   --footer-border: #eee;
-  --footer-text: #777;
+  --footer-text: #666;
   --section-title-color: #444;
   --bad-tag-bg: #f8d7da;
   --bad-tag-color: #721c24;
@@ -58,6 +70,15 @@ html {
 
 /* Dark theme via data attribute (manual toggle) */
 [data-theme="dark"] {
+  /* Restore the brighter orange: 8.75:1 as foreground on #121212. Where it is
+     used as a BACKGROUND, --on-primary flips to near-black (8.75:1 on #f90,
+     7.14:1 on the #e68a00 hover). */
+  --primary-color: #f90;
+  --primary-hover: #e68a00;
+  --on-primary: #121212;
+
+  /* #ff7518 is fine against the dark card (6.20:1), so keep it here. */
+  --primary-alt: #ff7518;
   --text-color: #e0e0e0;
   --text-muted: #aaa;
   --bg-color: #121212;
@@ -73,7 +94,11 @@ html {
   --footer-text: #999;
   --section-title-color: #ccc;
   --bad-tag-bg: rgb(255, 77, 79, 0.3);
-  --bad-tag-color: #ffb0b0;
+
+  /* Lightened from #ffb0b0: a .term inside .bad-hello-tag composites the purple
+     highlight over this translucent red, and the old pink only reached 3.53:1
+     at the pulse peak. */
+  --bad-tag-color: #ffd6d6;
   --toast-bg: #e0e0e0;
   --toast-color: #121212;
   --flyout-border: #444;
@@ -170,7 +195,7 @@ body {
 @keyframes color-change {
   0% { color: var(--primary-color); }
   50% { color: var(--primary-hover); }
-  100% { color: #ff7518; }
+  100% { color: var(--primary-alt); }
 }
 
 @keyframes bounce {
@@ -304,13 +329,31 @@ strong, .term {
   font-weight: 600;
   font-size: inherit;
   cursor: help;
-  color: var(--genz-accent);
+
+  /* Not --genz-accent: the accent is the same hue as the --term-highlight
+     background, so foreground and background moved together and every .term sat
+     at 1.5-3.8:1 in both themes. Not `inherit` either - a .term in the footer
+     picked up the muted --footer-text and fell to 2.83:1 under the pulse. Pin it
+     to the body text colour so a term is legible wherever it is placed. */
+  color: var(--text-color);
   transition: background-color 0.2s ease;
   display: inline;
 }
 
 .term:hover {
   background-color: rgb(157, 78, 221, 0.25);
+}
+
+/* Keep the red tint the tag is designed around; measured 4.56:1 at worst
+   (light, pulse peak) once the purple highlight composites over it. */
+.bad-hello-tag .term {
+  color: var(--bad-tag-color);
+}
+
+/* Likewise keep terms in a heading matching their heading rather than body
+   text; 4.80:1 at worst (light, pulse peak) against a 3:1 bar at 24px/600. */
+.section-title .term {
+  color: var(--section-title-color);
 }
 
 .term-highlight {
@@ -322,7 +365,7 @@ strong, .term {
   font-family: inherit;
   margin-top: 15px;
   background-color: var(--primary-color);
-  color: white;
+  color: var(--on-primary);
   border: none;
   padding: 8px 15px;
   border-radius: 5px;
@@ -408,11 +451,6 @@ strong, .term {
   font-style: italic;
 }
 
-.good-hello-tag {
-  background: linear-gradient(45deg, var(--genz-gradient-start), var(--genz-gradient-end));
-  color: white;
-}
-
 .bad-hello-tag {
   background-color: var(--bad-tag-bg);
   color: var(--bad-tag-color);
@@ -466,7 +504,7 @@ strong, .term {
 
 .copy {
   background-color: var(--primary-color);
-  color: white;
+  color: var(--on-primary);
 }
 
 .copy:hover {
@@ -540,7 +578,10 @@ strong, .term {
   font-size: 1.1rem;
   font-weight: 700;
   font-family: inherit;
-  color: #fff;
+
+  /* Near-black rather than white: the label sits on the orange->pink gradient,
+     where white peaks at 3.55:1 but near-black stays >= 5.28:1 at every stop. */
+  color: #121212;
   box-shadow: 0 2px 12px rgb(255, 51, 102, 0.3);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
   line-height: 1;
@@ -581,7 +622,7 @@ strong, .term {
   left: 50%;
   transform: translateX(-50%);
   background: var(--primary-color);
-  color: #fff;
+  color: var(--on-primary);
   padding: 8px 16px;
   border-radius: 0 0 8px 8px;
   z-index: 300;
@@ -592,7 +633,7 @@ strong, .term {
 
 .skip-link:focus {
   top: 0;
-  color: #fff;
+  color: var(--on-primary);
 }
 
 /* ========== 8. Media Queries ========== */

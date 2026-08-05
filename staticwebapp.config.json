@@ -51,6 +51,24 @@
       }
     },
     {
+      "route": "/icon-192.png",
+      "headers": {
+        "Cache-Control": "public, max-age=2592000, immutable"
+      }
+    },
+    {
+      "route": "/icon-512.png",
+      "headers": {
+        "Cache-Control": "public, max-age=2592000, immutable"
+      }
+    },
+    {
+      "route": "/icon-maskable-512.png",
+      "headers": {
+        "Cache-Control": "public, max-age=2592000, immutable"
+      }
+    },
+    {
       "route": "/error.css",
       "headers": {
         "Cache-Control": "public, max-age=86400"

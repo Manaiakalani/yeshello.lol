@@ -3,7 +3,11 @@
   --bg: #f8f8f8;
   --card-bg: #fff;
   --text: #333;
-  --accent: #f90;
+  --accent: #c24700;
+  --accent-hover: #a33c00;
+
+  /* Text drawn on top of --accent/--accent-hover; flips per theme (see style.css). */
+  --on-accent: #fff;
   --muted: #666;
 }
 
@@ -13,6 +17,8 @@
     --card-bg: #1e1e1e;
     --text: #e0e0e0;
     --accent: #f90;
+    --accent-hover: #e68a00;
+    --on-accent: #121212;
     --muted: #aaa;
   }
 }
@@ -70,7 +76,7 @@ body {
 .home-link {
   display: inline-block;
   background-color: var(--accent);
-  color: white;
+  color: var(--on-accent);
   padding: 12px 28px;
   border-radius: 5px;
   text-decoration: none;
@@ -79,7 +85,7 @@ body {
 }
 
 .home-link:hover {
-  background-color: #e68a00;
+  background-color: var(--accent-hover);
 }
 
 @media (width <= 480px) {
