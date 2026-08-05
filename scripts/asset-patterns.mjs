@@ -37,32 +37,61 @@ export function isStamped(url) {
  *
  * A factory, because a /g regex carries lastIndex between uses.
  */
-export const ATTR = () => /(href|src|srcset|poster)\s*=\s*(["'])(.*?)\2/gis;
+export const ATTR = () => /(?<![-\w:])(href|src|srcset|poster)\s*=\s*(["'])(.*?)\2/gis;
+
+/** The attributes whose value is a candidate list rather than a single URL. */
+export const LIST_VALUED = /^srcset$/i;
+
+/**
+ * A reference-bearing attribute with an unquoted value. Legal HTML, and the
+ * browser fetches it, but ATTR() cannot reach it - so without this it would
+ * ship unstamped in silence. Blocking is right: adding quotes is an obvious
+ * in-repo remedy, unlike the alternative of a second rewrite path.
+ */
+export const UNQUOTED = () => /(?<![-\w:])(?:href|src|srcset|poster)\s*=\s*[^\s"'=<>`]+/gi;
 
 /**
  * Splits a srcset value the way the HTML parser does.
  *
- * A URL is a run of non-whitespace characters; a comma only ends a candidate
- * when it trails the URL or a descriptor. Splitting on every comma instead
- * silently corrupted `images/x.webp?a=1,2 2x` into two bogus candidates - and
- * because the audit split identically, it agreed and let the mangled markup
- * ship. Confirmed against Chromium: it requests `/images/x.webp?a=1,2` whole.
+ * The rule is positional, and the asymmetry is the entire point. In URL
+ * position a comma is part of the URL unless it trails it, so
+ * `images/x.webp?a=1,2` is one URL - splitting on every comma corrupted it into
+ * two bogus candidates. In descriptor position the first comma ends the
+ * candidate, so `a.webp 1x,b.webp 2x` is two candidates - treating only a
+ * trailing comma as a terminator swallowed the second one entirely, which is
+ * the compact form every minifier emits.
+ *
+ * Both readings were confirmed against Chromium rather than inferred: it
+ * fetches `/images/x.webp?a=1,2` whole, and at DPR 2 it fetches `/b.webp`.
  */
 export function srcsetCandidates(value) {
   const out = [];
   let cur = null;
-  for (const token of value.split(/\s+/)) {
-    if (!token) continue;
-    const ends = token.endsWith(',');
-    const bare = token.replace(/,+$/, '');
-    if (!cur) {
-      if (bare) cur = { url: bare, desc: [] };
-    } else if (bare) {
-      cur.desc.push(bare);
-    }
-    if (ends && cur) {
-      out.push(cur);
-      cur = null;
+  for (let token of value.split(/\s+/)) {
+    while (token) {
+      if (!cur) {
+        // Leading commas are separators the browser skips over.
+        token = token.replace(/^,+/, '');
+        if (!token) break;
+        const url = token.replace(/,+$/, '');
+        cur = { url, desc: [] };
+        if (url !== token) {
+          out.push(cur);
+          cur = null;
+        }
+        token = '';
+      } else {
+        const comma = token.indexOf(',');
+        const head = comma === -1 ? token : token.slice(0, comma);
+        if (head) cur.desc.push(head);
+        if (comma === -1) {
+          token = '';
+        } else {
+          out.push(cur);
+          cur = null;
+          token = token.slice(comma + 1);
+        }
+      }
     }
   }
   if (cur) out.push(cur);
