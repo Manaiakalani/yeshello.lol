@@ -19,4 +19,18 @@ export default [
       semi: 'warn',
     },
   },
+  {
+    // Build tooling: Node ESM, not browser scripts. Previously unlinted.
+    files: ['scripts/**/*.mjs'],
+    languageOptions: {
+      ecmaVersion: 2022,
+      sourceType: 'module',
+      globals: globals.node,
+    },
+    rules: {
+      'no-unused-vars': 'warn',
+      'no-undef': 'error',
+      semi: 'warn',
+    },
+  },
 ];

@@ -29,6 +29,11 @@ jobs:
         with:
           submodules: true
           lfs: false
+      # Deploying stale stamps would republish HTML pointing at a cached asset,
+      # which is the failure this guards. Lint runs in a separate workflow that
+      # cannot block this one, so verify here too.
+      - name: Verify asset cache-busting stamps are current
+        run: node scripts/stamp-assets.mjs --check
       - name: Build And Deploy
         id: builddeploy
         uses: Azure/static-web-apps-deploy@v1
@@ -45,7 +50,10 @@ jobs:
           # Dependabot-authored PRs run without access to repository secrets, so the
           # deployment token is empty there. Without this the job hard-fails and every
           # dependency PR shows a red check. Preview deploys still run for normal PRs.
-          skip_deploy_on_missing_secrets: true
+          #
+          # Scoped to pull requests only: on a push to main a missing token must
+          # fail loudly rather than report success without deploying.
+          skip_deploy_on_missing_secrets: ${{ github.event_name == 'pull_request' }}
           ###### End of Repository/Build Configurations ######
 
   close_pull_request_job:
