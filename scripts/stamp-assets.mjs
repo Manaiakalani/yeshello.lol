@@ -28,7 +28,11 @@ function hashOf(asset) {
   if (!hashes.has(asset)) {
     const file = join(ROOT, asset);
     if (!existsSync(file)) return null;
-    hashes.set(asset, createHash('sha256').update(readFileSync(file)).digest('hex').slice(0, 8));
+    // Normalise newlines before hashing: git stores LF but checks out CRLF on
+    // Windows, so hashing raw bytes would give a developer and CI different
+    // stamps for identical content and --check could never pass on both.
+    const text = readFileSync(file, 'utf8').replace(/\r\n/g, '\n');
+    hashes.set(asset, createHash('sha256').update(text, 'utf8').digest('hex').slice(0, 8));
   }
   return hashes.get(asset);
 }
