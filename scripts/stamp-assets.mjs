@@ -26,7 +26,7 @@ import { createHash } from 'node:crypto';
 import { readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { join, dirname, resolve, extname } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { EXT, EXTERNAL, STAMPABLE, STAMPED, parts } from './asset-patterns.mjs';
+import { EXT, EXTERNAL, STAMPABLE, candidates, isStamped, parts } from './asset-patterns.mjs';
 
 const ROOT = resolve(join(dirname(fileURLToPath(import.meta.url)), '..'));
 const MANIFEST = 'manifest.json';
@@ -77,7 +77,10 @@ function update(name, next) {
 
 // One source of truth for both the stamping patterns and the audit, imported
 // from ./asset-patterns.mjs so the script and the spec cannot drift apart.
-const REF = new RegExp(`((?:href|src)=")([^"\\s]+\\.(?:${EXT})(?:[?#][^"\\s]*)?)(")`, 'gi');
+// Surrounding whitespace is tolerated because browsers strip it: without this
+// the audit below would see a reference the stamper had skipped and turn a
+// harmlessly-formatted attribute into a deploy block with no in-repo fix.
+const REF = new RegExp(`((?:href|src)="\\s*)([^"\\s]+\\.(?:${EXT})(?:[?#][^"\\s]*)?)(\\s*")`, 'gi');
 
 // Returns the URL unchanged when it is not ours to stamp, so callers can tell
 // whether anything actually happened and leave untouched markup byte-identical.
@@ -116,9 +119,8 @@ function stampSrcset(text, where) {
     // Bailing has to be loud: a local candidate sitting alongside one would
     // otherwise go unstamped and unflagged, under the 30-day immutable rule.
     if (/data:/i.test(value)) {
-      for (const candidate of value.split(/\s+/)) {
-        const url = candidate.replace(/,$/, '');
-        if (url && !EXTERNAL.test(url) && STAMPABLE.test(parts(url).path)) {
+      for (const url of candidates(value, true)) {
+        if (!EXTERNAL.test(url) && STAMPABLE.test(parts(url).path)) {
           missed.push(`${where}: ${url} (in a srcset holding a data: URI)`);
         }
       }
@@ -159,7 +161,7 @@ if (existsSync(join(ROOT, MANIFEST))) {
 // 2. Safety net. An unstamped local asset silently falls back to the long
 //    immutable cache rule - srcset was missed exactly that way - so a reference
 //    the patterns above do not reach must fail loudly rather than ship.
-const ATTR = /(?:href|src|srcset)="([^"]+)"/gi;
+const ATTR = /(href|src|srcset)="([^"]*)"/gi;
 
 for (const page of PAGES) {
   if (!existsSync(join(ROOT, page))) continue;
@@ -169,11 +171,11 @@ for (const page of PAGES) {
   // Audit the text we just produced, not the file on disk: under --check
   // nothing was written, so re-reading would flag ordinary staleness as an
   // unreachable reference and send you hunting the wrong bug.
-  for (const [, value] of stamped.matchAll(ATTR)) {
-    if (/data:/i.test(value)) continue;
-    for (const candidate of value.split(',')) {
-      const url = candidate.trim().split(/\s+/)[0];
-      if (!url || STAMPED.test(url) || EXTERNAL.test(url)) continue;
+  for (const [, name, value] of stamped.matchAll(ATTR)) {
+    // A data: URI is skipped only as a candidate, never as a whole value:
+    // stampSrcset already reported anything local hiding beside one.
+    for (const url of candidates(value, name.toLowerCase() === 'srcset')) {
+      if (isStamped(url) || EXTERNAL.test(url)) continue;
       if (STAMPABLE.test(parts(url).path)) missed.push(`${page}: ${url}`);
     }
   }

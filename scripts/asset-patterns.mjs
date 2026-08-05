@@ -18,10 +18,31 @@ export const EXTERNAL = /^(?:https?:|data:|\/\/|#|mailto:|\/cdn-cgi\/)/i;
 
 export const STAMPABLE = new RegExp(`\\.(?:${EXT})$`, 'i');
 
-// A stamp only counts when it is a real query parameter. Terminating on & or #
-// matters: "style.css#top&v=abc" carries the text but the browser never sends
-// it, so the request is still for the unversioned URL.
-export const STAMPED = /[?&]v=[a-f0-9]{8}(?:[&#]|$)/;
+// A stamp only counts when it is a real query parameter. This is tested against
+// parts(url).query, never the whole URL: "style.css#top&v=abcdef12" carries the
+// text but lives in the fragment, which the browser never sends, so the request
+// is still for the unversioned URL.
+export const STAMPED = /(?:^|&)v=[a-f0-9]{8}(?:&|$)/;
+
+/** True when a reference already carries a usable stamp. */
+export function isStamped(url) {
+  return STAMPED.test(parts(url).query);
+}
+
+/**
+ * Splits an attribute value into the URLs it references.
+ *
+ * srcset is a comma-separated list of "url [descriptor]"; every other attribute
+ * holds a single URL whose query may legitimately contain a comma. Getting this
+ * wrong breaks both ways, and both were live: splitting a plain href on commas
+ * hard-blocked the deploy on `style.css?a=1,2`, while splitting srcset on
+ * whitespace alone let `images/x.webp,data:image/gif;base64,...` hide a real
+ * asset inside one token. Splitting on either separator is what surfaces it.
+ */
+export function candidates(value, srcset) {
+  const raw = srcset ? value.split(/[\s,]+/) : [value];
+  return raw.map((c) => c.trim()).filter(Boolean);
+}
 
 /** Splits a reference into its path, query and fragment. */
 export function parts(url) {

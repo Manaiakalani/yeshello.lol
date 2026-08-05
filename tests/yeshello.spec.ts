@@ -1,5 +1,5 @@
 import { test, expect, type Page } from '@playwright/test';
-import { EXTERNAL, STAMPABLE, STAMPED, parts } from '../scripts/asset-patterns.mjs';
+import { EXTERNAL, STAMPABLE, candidates, isStamped, parts } from '../scripts/asset-patterns.mjs';
 
 /**
  * Cloudflare fronts production and injects two scripts into the HTML at the
@@ -660,16 +660,18 @@ test.describe('YesHello.lol - Cache Busting', () => {
       // fetch, and it sits under the 30-day immutable /images/* rule.
       // The patterns come from the stamper's own module: a fourth hand-copy of
       // this list is exactly the drift that let srcset, and later .mjs, slip.
-      const refs = [...html.matchAll(/(?:href|src|srcset)="([^"]+)"/gi)]
-        .flatMap((m) => m[1].split(','))
-        .map((c) => c.trim().split(/\s+/)[0])
-        .filter((u) => u && !EXTERNAL.test(u) && STAMPABLE.test(parts(u).path));
+      const refs = [...html.matchAll(/(href|src|srcset)="([^"]*)"/gi)]
+        .flatMap((m) => candidates(m[2], m[1].toLowerCase() === 'srcset'))
+        .filter((u) => !EXTERNAL.test(u) && STAMPABLE.test(parts(u).path));
       expect(refs.length, `expected local asset refs in ${page}`).toBeGreaterThanOrEqual(
         assets.length,
       );
 
       for (const ref of refs) {
-        expect(ref, 'asset must carry a ?v= hash the browser actually sends').toMatch(STAMPED);
+        expect(
+          isStamped(ref),
+          `${ref} must carry a ?v= hash in the query the browser actually sends`,
+        ).toBe(true);
         // The hash is only useful if the versioned URL still resolves.
         const res = await request.get(ref.startsWith('/') ? ref : `/${ref}`);
         expect(res.status(), `${ref} should resolve`).toBe(200);
