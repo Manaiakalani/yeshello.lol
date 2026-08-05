@@ -26,6 +26,9 @@ test.describe('YesHello.lol - Page Load & Structure', () => {
         errors.push(msg.text());
       }
     });
+    // Uncaught exceptions surface as 'pageerror', not 'console', so listening
+    // only for console errors would miss a script that throws on load.
+    page.on('pageerror', (err) => errors.push(`pageerror: ${err.message}`));
     await page.goto('/');
     await page.waitForLoadState('networkidle');
     expect(errors).toHaveLength(0);
@@ -34,7 +37,7 @@ test.describe('YesHello.lol - Page Load & Structure', () => {
   // Regression guard: the stylesheet used to rely on an inline
   // onload="this.media='all'" handler, which our CSP blocks, so fonts silently
   // never loaded in production.
-  test('should not rely on inline handlers blocked by CSP', async ({ page }) => {
+  test('should not rely on inline handlers blocked by CSP', async ({ page, request }) => {
     const violations: string[] = [];
     page.on('console', (msg) => {
       const text = msg.text();
@@ -46,10 +49,26 @@ test.describe('YesHello.lol - Page Load & Structure', () => {
     await page.waitForLoadState('networkidle');
     expect(violations, `CSP violations: ${violations.join(' | ')}`).toHaveLength(0);
 
-    const printOnly = await page
-      .locator('link[rel="stylesheet"][media="print"]')
-      .count();
+    const printOnly = await page.locator('link[rel="stylesheet"][media="print"]').count();
     expect(printOnly).toBe(0);
+
+    // The two assertions above still pass if the font link is deleted outright,
+    // so check the markup the CSP would block and that the fonts really arrive.
+    const html = await (await request.get('/')).text();
+    const inlineHandlers = [...html.matchAll(/\son[a-z]+\s*=\s*"/gi)].map((m) => m[0].trim());
+    expect(inlineHandlers, `inline handlers are blocked by our CSP`).toEqual([]);
+
+    const fontLink = page.locator('link[rel="stylesheet"][href*="fonts.googleapis.com"]');
+    await expect(fontLink).toHaveCount(1);
+    await expect(fontLink).not.toHaveAttribute('media', 'print');
+
+    const families = await page.evaluate(async () => {
+      await document.fonts.ready;
+      return [...new Set([...document.fonts].filter((f) => f.status === 'loaded').map((f) => f.family))];
+    });
+    expect(families, 'webfonts should actually load, not just be linked').toEqual(
+      expect.arrayContaining(['Manrope', 'Poppins'])
+    );
   });
 
   test('should send the expected security headers', async ({ page }) => {
@@ -246,6 +265,62 @@ test.describe('YesHello.lol - Colour Contrast', () => {
       expect(
         r.ratio,
         `${r.name} (${r.state}) in ${r.theme} mode: ${r.fg} on ${r.bg}`
+      ).toBeGreaterThanOrEqual(4.5);
+    }
+  });
+
+  // .theme-toggle sits on a gradient, so getComputedStyle reports its
+  // background as transparent and the sweep above skips it. Its label was white
+  // and failed against every stop, so sample the declared stops directly.
+  test('theme toggle label is legible across its gradient', async ({ page }) => {
+    await page.goto('/');
+
+    const samples = await page.evaluate(() => {
+      const parse = (c: string) => (c.match(/[\d.]+/g) ?? []).map(Number);
+      const ch = (v: number) => {
+        const s = v / 255;
+        return s <= 0.03928 ? s / 12.92 : Math.pow((s + 0.055) / 1.055, 2.4);
+      };
+      const lum = (c: number[]) => 0.2126 * ch(c[0]) + 0.7152 * ch(c[1]) + 0.0722 * ch(c[2]);
+      const ratio = (f: number[], g: number[]) => {
+        const [a, b] = [lum(f), lum(g)].sort((x, y) => y - x);
+        return (a + 0.05) / (b + 0.05);
+      };
+      const resolve = (value: string) => {
+        const probe = document.createElement('span');
+        probe.style.color = value;
+        document.body.appendChild(probe);
+        const rgb = parse(getComputedStyle(probe).color);
+        probe.remove();
+        return rgb;
+      };
+
+      const out: { theme: string; part: string; stop: string; ratio: number }[] = [];
+      for (const theme of ['light', 'dark']) {
+        document.documentElement.setAttribute('data-theme', theme);
+        const root = getComputedStyle(document.documentElement);
+        // Both endpoints of `linear-gradient(135deg, start, end)`.
+        const stops = ['--genz-gradient-start', '--genz-gradient-end'].map((n) => ({
+          name: n,
+          rgb: resolve(root.getPropertyValue(n).trim()),
+        }));
+        for (const sel of ['.toggle-label', '.icon-sun', '.icon-moon']) {
+          const el = document.querySelector(sel);
+          if (!el) continue;
+          const fg = parse(getComputedStyle(el).color);
+          for (const stop of stops) {
+            out.push({ theme, part: sel, stop: stop.name, ratio: ratio(fg, stop.rgb) });
+          }
+        }
+      }
+      return out;
+    });
+
+    expect(samples.length).toBeGreaterThanOrEqual(2 * 2);
+    for (const s of samples) {
+      expect(
+        s.ratio,
+        `${s.part} on ${s.stop} in ${s.theme} mode`
       ).toBeGreaterThanOrEqual(4.5);
     }
   });
@@ -524,15 +599,22 @@ test.describe('YesHello.lol - Cache Busting', () => {
   // HTML against a day-old asset. This happened in production: the CDN kept
   // serving the previous stylesheet after the page itself had updated.
   for (const [page, assets] of [
-    ['/', ['style.css', 'script.js']],
+    ['/', ['style.css', 'script.js', 'manifest.json', 'favicon.ico', 'images/']],
     ['/404.html', ['error.css']],
   ] as const) {
     test(`${page} references its assets with a content hash`, async ({ request }) => {
       const html = await (await request.get(page)).text();
+      // Covers srcset too: the <source> WebP is what most browsers actually
+      // fetch, and it sits under the 30-day immutable /images/* rule.
       const refs = [
-        ...html.matchAll(/(?:href|src)="((?!https?:|\/\/)[^"]+\.(?:css|js)(?:\?[^"]*)?)"/gi),
-      ].map((m) => m[1]);
-      expect(refs.length, `expected local asset refs in ${page}`).toBe(assets.length);
+        ...html.matchAll(/(?:href|src|srcset)="((?!https?:|data:|\/\/|#|mailto:)[^"]+)"/gi),
+      ]
+        .flatMap((m) => m[1].split(','))
+        .map((c) => c.trim().split(/\s+/)[0])
+        .filter((u) => /\.(?:css|js|json|webmanifest|ico|png|svg|webp|jpe?g|gif|avif)(?:\?|$)/i.test(u));
+      expect(refs.length, `expected local asset refs in ${page}`).toBeGreaterThanOrEqual(
+        assets.length,
+      );
 
       for (const ref of refs) {
         expect(ref, 'asset must carry a ?v= hash').toMatch(/\?v=[a-f0-9]{8}$/);
@@ -540,7 +622,12 @@ test.describe('YesHello.lol - Cache Busting', () => {
         const res = await request.get(ref.startsWith('/') ? ref : `/${ref}`);
         expect(res.status(), `${ref} should resolve`).toBe(200);
       }
-      expect(assets.every((a) => refs.some((r) => r.includes(a)))).toBe(true);
+      for (const asset of assets) {
+        expect(
+          refs.some((r) => r.includes(asset)),
+          `${page} should reference ${asset}`,
+        ).toBe(true);
+      }
     });
   }
 });

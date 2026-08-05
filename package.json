@@ -11,7 +11,7 @@
     "lint": "npm run lint:html && npm run lint:css && npm run lint:js && npm run lint:assets",
     "lint:html": "htmlhint \"*.html\"",
     "lint:css": "stylelint \"*.css\"",
-    "lint:js": "eslint \"*.js\"",
+    "lint:js": "eslint \"*.js\" \"scripts/**/*.mjs\"",
     "lint:assets": "node scripts/stamp-assets.mjs --check",
     "stamp": "node scripts/stamp-assets.mjs"
   },
