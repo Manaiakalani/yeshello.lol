@@ -27,7 +27,7 @@
   "homepage": "https://yeshello.lol",
   "devDependencies": {
     "@playwright/test": "^1.62.1",
-    "eslint": "^10.9.1",
+    "eslint": "^10.10.0",
     "globals": "^17.12.0",
     "htmlhint": "^1.9.2",
     "stylelint": "^17.15.0",
